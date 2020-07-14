@@ -1,0 +1,37 @@
+{
+	"schemaVersion": 1,
+	"id": "no_fog",
+	"name": "No Fog",
+	"version": "${version}",
+	"description": "Removes different types of fog.",
+	"authors":
+	[
+		"Virtuoel"
+	],
+	"contact":
+	{
+		"homepage": "https://www.curseforge.com/minecraft/mc-mods/nofog"
+	},
+	"license": "MIT",
+	"icon": "assets/no_fog/icon.png",
+	"environment": "client",
+	"depends":
+	{
+		"fabricloader": ">=0.8.0"
+	},
+	"entrypoints":
+	{
+		"client":
+		[
+			"virtuoel.no_fog.NoFogClient"
+		],
+		"modmenu":
+		[
+			"virtuoel.no_fog.util.ModMenuCompatibility"
+		]
+	},
+	"mixins":
+	[
+		"no_fog.mixins.json"
+	]
+}
