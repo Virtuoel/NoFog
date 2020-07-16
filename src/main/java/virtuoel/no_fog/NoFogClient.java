@@ -46,6 +46,9 @@ public class NoFogClient implements ClientModInitializer
 		}
 	}
 	
+	public static final float FOG_START = 0.0F;
+	public static final float FOG_END = 1_000_000.0F;
+	
 	public static float getFogDistance(Camera camera, BackgroundRenderer.FogType fogType, float viewDistance, boolean thickFog, FogToggles toggles, float value, boolean start)
 	{
 		final Entity entity = camera.getFocusedEntity();
@@ -54,19 +57,19 @@ public class NoFogClient implements ClientModInitializer
 		
 		if (blind)
 		{
-			return toggles.blindnessFog ? value : start ? 0.0F : Float.MAX_VALUE;
+			return toggles.blindnessFog ? value : start ? FOG_START : FOG_END;
 		}
 		else if (thickFog)
 		{
-			return toggles.thickFog ? value : start ? 0.0F : Float.MAX_VALUE;
+			return toggles.thickFog ? value : start ? FOG_START : FOG_END;
 		}
 		else if (fogType == FogType.FOG_SKY)
 		{
-			return toggles.skyFog ? value : start ? 0.0F : Float.MAX_VALUE;
+			return toggles.skyFog ? value : start ? FOG_START : FOG_END;
 		}
 		else
 		{
-			return toggles.terrainFog ? value : start ? 0.0F : Float.MAX_VALUE;
+			return toggles.terrainFog ? value : start ? FOG_START : FOG_END;
 		}
 	}
 	
