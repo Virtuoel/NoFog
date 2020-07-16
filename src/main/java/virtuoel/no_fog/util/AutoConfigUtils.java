@@ -119,7 +119,7 @@ public class AutoConfigUtils
 		entries.add(booleanEntry(
 			"text.no_fog.config.blindness_fog",
 			data.blindnessFog,
-			Boolean.FALSE::booleanValue,
+			Boolean.TRUE::booleanValue,
 			newValue -> data.blindnessFog = newValue
 		));
 		
