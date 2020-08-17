@@ -17,10 +17,13 @@ import me.sargunvohra.mcmods.autoconfig1u.serializer.GsonConfigSerializer;
 import me.shedaniel.clothconfig2.api.AbstractConfigListEntry;
 import me.shedaniel.clothconfig2.api.ConfigEntryBuilder;
 import me.shedaniel.clothconfig2.gui.entries.BooleanListEntry;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
+import net.minecraft.util.registry.BuiltinRegistries;
 import net.minecraft.util.registry.Registry;
+import net.minecraft.world.biome.Biome;
 import virtuoel.no_fog.api.NoFogConfig;
 
 public class AutoConfigUtils
@@ -56,7 +59,14 @@ public class AutoConfigUtils
 		
 		final List<AbstractConfigListEntry> entries = new LinkedList<>();
 		
-		final List<String> ids = Registry.BIOME.getIds().stream().map(Identifier::toString).collect(Collectors.toList());
+		final MinecraftClient client = MinecraftClient.getInstance();
+		Registry<Biome> biomeRegistry = BuiltinRegistries.BIOME;
+		if (client != null && client.world != null)
+		{
+			biomeRegistry = client.world.getRegistryManager().get(Registry.BIOME_KEY);
+		}
+		
+		final List<String> ids = biomeRegistry.getIds().stream().map(Identifier::toString).collect(Collectors.toList());
 		Collections.sort(ids);
 		
 		for (final String id : ids)

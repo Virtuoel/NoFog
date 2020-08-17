@@ -22,9 +22,9 @@ import virtuoel.no_fog.util.FogToggles;
 public abstract class BackgroundRendererMixin
 {
 	@Inject(method = "applyFog", locals = LocalCapture.CAPTURE_FAILHARD, at = @At(value = "INVOKE", shift = Shift.AFTER, target = "Lcom/mojang/blaze3d/systems/RenderSystem;fogDensity(F)V"))
-	private static void applyFogModifyDensity(Camera camera, BackgroundRenderer.FogType fogType, float viewDistance, boolean thickFog, CallbackInfo info, FluidState fluidState, Entity entity, boolean notEmpty, float density)
+	private static void applyFogModifyDensity(Camera camera, BackgroundRenderer.FogType fogType, float viewDistance, boolean thickFog, CallbackInfo info, FluidState fluidState, Entity entity, float density)
 	{
-		final String biome = Registry.BIOME.getId(entity.world.getBiome(entity.getBlockPos())).toString();
+		final String biome = entity.world.getRegistryManager().get(Registry.BIOME_KEY).getId(entity.world.getBiome(entity.getBlockPos())).toString();
 		final FogToggles toggles = NoFogClient.CONFIG.get().getBiomeToggles().computeIfAbsent(biome, FogToggles::new);
 		
 		if (
@@ -39,7 +39,7 @@ public abstract class BackgroundRendererMixin
 	@Inject(method = "applyFog", locals = LocalCapture.CAPTURE_FAILHARD, at = @At(value = "INVOKE", shift = Shift.AFTER, target = "Lcom/mojang/blaze3d/systems/RenderSystem;fogStart(F)V"))
 	private static void applyFogModifyStart(Camera camera, BackgroundRenderer.FogType fogType, float viewDistance, boolean thickFog, CallbackInfo info, FluidState fluidState, Entity entity, float start)
 	{
-		final String biome = Registry.BIOME.getId(entity.world.getBiome(entity.getBlockPos())).toString();
+		final String biome = entity.world.getRegistryManager().get(Registry.BIOME_KEY).getId(entity.world.getBiome(entity.getBlockPos())).toString();
 		final FogToggles toggles = NoFogClient.CONFIG.get().getBiomeToggles().computeIfAbsent(biome, FogToggles::new);
 		
 		final float modified = NoFogClient.getFogDistance(camera, fogType, viewDistance, thickFog, toggles, start, true);
@@ -53,7 +53,7 @@ public abstract class BackgroundRendererMixin
 	@Inject(method = "applyFog", locals = LocalCapture.CAPTURE_FAILHARD, at = @At(value = "INVOKE", shift = Shift.AFTER, target = "Lcom/mojang/blaze3d/systems/RenderSystem;fogEnd(F)V"))
 	private static void applyFogModifyEnd(Camera camera, BackgroundRenderer.FogType fogType, float viewDistance, boolean thickFog, CallbackInfo info, FluidState fluidState, Entity entity, float start, float end)
 	{
-		final String biome = Registry.BIOME.getId(entity.world.getBiome(entity.getBlockPos())).toString();
+		final String biome = entity.world.getRegistryManager().get(Registry.BIOME_KEY).getId(entity.world.getBiome(entity.getBlockPos())).toString();
 		final FogToggles toggles = NoFogClient.CONFIG.get().getBiomeToggles().computeIfAbsent(biome, FogToggles::new);
 		
 		final float modified = NoFogClient.getFogDistance(camera, fogType, viewDistance, thickFog, toggles, end, false);
