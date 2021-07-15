@@ -1,6 +1,7 @@
 package virtuoel.no_fog.util;
 
 import java.lang.reflect.Field;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -16,14 +17,20 @@ import me.shedaniel.autoconfig.gui.registry.api.GuiRegistryAccess;
 import me.shedaniel.autoconfig.serializer.GsonConfigSerializer;
 import me.shedaniel.clothconfig2.api.AbstractConfigListEntry;
 import me.shedaniel.clothconfig2.api.ConfigEntryBuilder;
-import me.shedaniel.clothconfig2.gui.entries.BooleanListEntry;
+import me.shedaniel.clothconfig2.gui.entries.EnumListEntry;
+import net.fabricmc.fabric.api.util.TriState;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.resource.language.I18n;
+import net.minecraft.text.LiteralText;
+import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
 import net.minecraft.util.registry.BuiltinRegistries;
 import net.minecraft.util.registry.Registry;
+import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
+import net.minecraft.world.dimension.DimensionType;
 import virtuoel.no_fog.api.NoFogConfig;
 
 public class AutoConfigUtils
@@ -32,7 +39,9 @@ public class AutoConfigUtils
 	{
 		AutoConfig.register(NoFogConfigImpl.class, GsonConfigSerializer::new);
 		GuiRegistry registry = AutoConfig.getGuiRegistry(NoFogConfigImpl.class);
-		registry.registerPredicateProvider(AutoConfigUtils::toggleMapEntries, f -> f.getName().equals("biomeToggles"));
+		registry.registerPredicateProvider(AutoConfigUtils::globalToggleEntry, f -> f.getName().equals("globalToggles"));
+		registry.registerPredicateProvider(AutoConfigUtils::dimensionToggleMapEntries, f -> f.getName().equals("dimensionToggles"));
+		registry.registerPredicateProvider(AutoConfigUtils::biomeToggleMapEntries, f -> f.getName().equals("biomeToggles"));
 	}
 	
 	public static final Supplier<NoFogConfig> CONFIG = () -> AutoConfig.getConfigHolder(NoFogConfigImpl.class).getConfig();
@@ -53,11 +62,72 @@ public class AutoConfigUtils
 	}
 	
 	@SuppressWarnings("rawtypes")
-	private static List<AbstractConfigListEntry> toggleMapEntries(String i13n, Field field, Object config, Object defaults, GuiRegistryAccess registry)
+	private static List<AbstractConfigListEntry> globalToggleEntry(String i13n, Field field, Object config, Object defaults, GuiRegistryAccess registry)
+	{
+		try
+		{
+			final List<AbstractConfigListEntry> entries = new LinkedList<>();
+			
+			entries.add(ENTRY_BUILDER
+				.startSubCategory(
+					new TranslatableText("text.no_fog.config.category.global"),
+					addToggleEntries((FogToggles) field.get(config))
+				).build()
+			);
+			
+			return entries;
+		}
+		catch (IllegalArgumentException | IllegalAccessException e)
+		{
+			return new LinkedList<>();
+		}
+	}
+	
+	@SuppressWarnings("rawtypes")
+	private static List<AbstractConfigListEntry> dimensionToggleMapEntries(String i13n, Field field, Object config, Object defaults, GuiRegistryAccess registry)
 	{
 		final Map<String, FogToggles> data = getFieldValue(field, config, HashMap::new);
 		
 		final List<AbstractConfigListEntry> entries = new LinkedList<>();
+		final List<AbstractConfigListEntry> dimensionEntries = new LinkedList<>();
+		
+		final MinecraftClient client = MinecraftClient.getInstance();
+		List<String> ids = Arrays.asList(World.OVERWORLD.getValue().toString(), World.NETHER.getValue().toString(), World.END.getValue().toString());
+		if (client != null && client.world != null)
+		{
+			final Registry<DimensionType> dimensionRegistry = client.world.getRegistryManager().get(Registry.DIMENSION_TYPE_KEY);
+			ids = dimensionRegistry.getIds().stream().map(Identifier::toString).collect(Collectors.toList());
+		}
+		
+		for (final String id : ids)
+		{
+			data.computeIfAbsent(id, FogToggles::new);
+			
+			dimensionEntries.add(ENTRY_BUILDER
+				.startSubCategory(
+					new LiteralText(id),
+					addToggleEntries(data.get(id))
+				).build()
+			);
+		}
+		
+		entries.add(ENTRY_BUILDER
+			.startSubCategory(
+				new TranslatableText("text.no_fog.config.category.dimensions"),
+				dimensionEntries
+			).build()
+		);
+		
+		return entries;
+	}
+	
+	@SuppressWarnings("rawtypes")
+	private static List<AbstractConfigListEntry> biomeToggleMapEntries(String i13n, Field field, Object config, Object defaults, GuiRegistryAccess registry)
+	{
+		final Map<String, FogToggles> data = getFieldValue(field, config, HashMap::new);
+		
+		final List<AbstractConfigListEntry> entries = new LinkedList<>();
+		final List<AbstractConfigListEntry> biomeEntries = new LinkedList<>();
 		
 		final MinecraftClient client = MinecraftClient.getInstance();
 		Registry<Biome> biomeRegistry = BuiltinRegistries.BIOME;
@@ -66,91 +136,89 @@ public class AutoConfigUtils
 			biomeRegistry = client.world.getRegistryManager().get(Registry.BIOME_KEY);
 		}
 		
-		final List<String> ids = biomeRegistry.getIds().stream().map(Identifier::toString).collect(Collectors.toList());
-		Collections.sort(ids);
+		final List<Identifier> ids = biomeRegistry.getIds().stream().collect(Collectors.toList());
+		Collections.sort(ids, (l, r) -> I18n.translate(Util.createTranslationKey("biome", l)).compareTo(I18n.translate(Util.createTranslationKey("biome", r))));
 		
-		for (final String id : ids)
+		for (final Identifier id : ids)
 		{
-			data.computeIfAbsent(id, FogToggles::new);
+			final String idStr = id.toString();
+			data.computeIfAbsent(idStr, FogToggles::new);
 			
-			entries.add(ENTRY_BUILDER
+			biomeEntries.add(ENTRY_BUILDER
 				.startSubCategory(
-					new TranslatableText(Util.createTranslationKey("biome", new Identifier(id))),
-					addToggleEntries(data, id)
+					new TranslatableText(Util.createTranslationKey("biome", id)),
+					addToggleEntries(data.get(idStr))
 				).build()
 			);
 		}
+		
+		entries.add(ENTRY_BUILDER
+			.startSubCategory(
+				new TranslatableText("text.no_fog.config.category.biomes"),
+				biomeEntries
+			).build()
+		);
 		
 		return entries;
 	}
 	
 	@SuppressWarnings("rawtypes")
-	private static List<AbstractConfigListEntry> addToggleEntries(Map<String, FogToggles> toggles, String id)
+	private static List<AbstractConfigListEntry> addToggleEntries(final FogToggles data)
 	{
-		final FogToggles data = toggles.get(id);
-		
 		List<AbstractConfigListEntry> entries = new LinkedList<>();
 		
-		entries.add(booleanEntry(
+		entries.add(triStateEntry(
 			"text.no_fog.config.sky_fog",
 			data.skyFog,
-			Boolean.FALSE::booleanValue,
 			newValue -> data.skyFog = newValue
 		));
 		
-		entries.add(booleanEntry(
+		entries.add(triStateEntry(
 			"text.no_fog.config.terrain_fog",
 			data.terrainFog,
-			Boolean.FALSE::booleanValue,
 			newValue -> data.terrainFog = newValue
 		));
 		
-		entries.add(booleanEntry(
+		entries.add(triStateEntry(
 			"text.no_fog.config.thick_fog",
 			data.thickFog,
-			Boolean.FALSE::booleanValue,
-			newValue -> data.thickFog = newValue
+			newValue -> data.thickFog = newValue,
+			new TranslatableText("text.no_fog.config.thick_fog.tooltip")
 		));
 		
-		entries.add(booleanEntry(
+		entries.add(triStateEntry(
 			"text.no_fog.config.water_fog",
 			data.waterFog,
-			Boolean.FALSE::booleanValue,
 			newValue -> data.waterFog = newValue
 		));
 		
-		entries.add(booleanEntry(
+		entries.add(triStateEntry(
 			"text.no_fog.config.lava_fog",
 			data.lavaFog,
-			Boolean.FALSE::booleanValue,
 			newValue -> data.lavaFog = newValue
 		));
 		
-		entries.add(booleanEntry(
+		entries.add(triStateEntry(
 			"text.no_fog.config.powder_snow_fog",
 			data.powderSnowFog,
-			Boolean.FALSE::booleanValue,
 			newValue -> data.powderSnowFog = newValue
 		));
 		
-		entries.add(booleanEntry(
+		entries.add(triStateEntry(
 			"text.no_fog.config.blindness_fog",
 			data.blindnessFog,
-			Boolean.TRUE::booleanValue,
 			newValue -> data.blindnessFog = newValue
 		));
 		
 		return entries;
 	}
 	
-	private static BooleanListEntry booleanEntry(String key, boolean value, Supplier<Boolean> defaultValue, Consumer<Boolean> saveConsumer)
+	private static EnumListEntry<TriState> triStateEntry(String key, TriState value, Consumer<TriState> saveConsumer, Text... tooltip)
 	{
-		return ENTRY_BUILDER.startBooleanToggle(new TranslatableText(key), value)
-			.setDefaultValue(defaultValue)
+		return ENTRY_BUILDER.startEnumSelector(new TranslatableText(key), TriState.class, value)
+			.setDefaultValue(TriState.DEFAULT)
 			.setSaveConsumer(saveConsumer)
-			.setYesNoTextSupplier(
-				bool -> new TranslatableText("text.cloth-config.boolean.value." + bool)
-			)
+			.setTooltip(tooltip)
 			.build();
 	}
 }
