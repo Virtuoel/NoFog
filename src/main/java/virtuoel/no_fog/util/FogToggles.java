@@ -1,7 +1,5 @@
 package virtuoel.no_fog.util;
 
-import net.fabricmc.fabric.api.util.TriState;
-
 public class FogToggles
 {
 	public FogToggles(Object... noop)
