@@ -12,5 +12,6 @@ public class FogToggles
 	public boolean thickFog = false;
 	public boolean waterFog = false;
 	public boolean lavaFog = false;
+	public boolean powderSnowFog = false;
 	public boolean blindnessFog = true;
 }

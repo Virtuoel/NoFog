@@ -3,8 +3,8 @@ package virtuoel.no_fog.util;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import me.sargunvohra.mcmods.autoconfig1u.ConfigData;
-import me.sargunvohra.mcmods.autoconfig1u.annotation.Config;
+import me.shedaniel.autoconfig.ConfigData;
+import me.shedaniel.autoconfig.annotation.Config;
 import virtuoel.no_fog.NoFogClient;
 import virtuoel.no_fog.api.NoFogConfig;
 

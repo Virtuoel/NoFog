@@ -10,10 +10,10 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import me.sargunvohra.mcmods.autoconfig1u.AutoConfig;
-import me.sargunvohra.mcmods.autoconfig1u.gui.registry.GuiRegistry;
-import me.sargunvohra.mcmods.autoconfig1u.gui.registry.api.GuiRegistryAccess;
-import me.sargunvohra.mcmods.autoconfig1u.serializer.GsonConfigSerializer;
+import me.shedaniel.autoconfig.AutoConfig;
+import me.shedaniel.autoconfig.gui.registry.GuiRegistry;
+import me.shedaniel.autoconfig.gui.registry.api.GuiRegistryAccess;
+import me.shedaniel.autoconfig.serializer.GsonConfigSerializer;
 import me.shedaniel.clothconfig2.api.AbstractConfigListEntry;
 import me.shedaniel.clothconfig2.api.ConfigEntryBuilder;
 import me.shedaniel.clothconfig2.gui.entries.BooleanListEntry;
@@ -124,6 +124,13 @@ public class AutoConfigUtils
 			data.lavaFog,
 			Boolean.FALSE::booleanValue,
 			newValue -> data.lavaFog = newValue
+		));
+		
+		entries.add(booleanEntry(
+			"text.no_fog.config.powder_snow_fog",
+			data.powderSnowFog,
+			Boolean.FALSE::booleanValue,
+			newValue -> data.powderSnowFog = newValue
 		));
 		
 		entries.add(booleanEntry(

@@ -12,10 +12,12 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.render.BackgroundRenderer;
 import net.minecraft.client.render.BackgroundRenderer.FogType;
 import net.minecraft.client.render.Camera;
+import net.minecraft.client.render.CameraSubmersionType;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.registry.Registry;
 import virtuoel.no_fog.api.NoFogConfig;
 import virtuoel.no_fog.util.AutoConfigUtils;
 import virtuoel.no_fog.util.FogToggles;
@@ -26,7 +28,7 @@ public class NoFogClient implements ClientModInitializer
 	
 	public static final Logger LOGGER = LogManager.getLogger(MOD_ID);
 	
-	public static final boolean CONFIGS_LOADED = FabricLoader.getInstance().isModLoaded("cloth-config2") && FabricLoader.getInstance().isModLoaded("autoconfig1u");
+	public static final boolean CONFIGS_LOADED = FabricLoader.getInstance().isModLoaded("cloth-config2");
 	
 	private static final Map<String, FogToggles> FALLBACK = new HashMap<>();
 	
@@ -46,16 +48,27 @@ public class NoFogClient implements ClientModInitializer
 		}
 	}
 	
-	public static final float FOG_START = 0.0F;
+	public static final float FOG_START = -8.0F;
 	public static final float FOG_END = 1_000_000.0F;
 	
-	public static float getFogDistance(Camera camera, BackgroundRenderer.FogType fogType, float viewDistance, boolean thickFog, FogToggles toggles, float value, boolean start)
+	public static float getFogDistance(Camera camera, BackgroundRenderer.FogType fogType, float viewDistance, boolean thickFog, CameraSubmersionType cameraSubmersionType, Entity entity, float value, boolean start)
 	{
-		final Entity entity = camera.getFocusedEntity();
+		final String biome = entity.world.getRegistryManager().get(Registry.BIOME_KEY).getId(entity.world.getBiome(entity.getBlockPos())).toString();
+		final FogToggles toggles = NoFogClient.CONFIG.get().getBiomeToggles().computeIfAbsent(biome, FogToggles::new);
 		
-		final boolean blind = entity instanceof LivingEntity && ((LivingEntity) entity).hasStatusEffect(StatusEffects.BLINDNESS);
-		
-		if (blind)
+		if (cameraSubmersionType == CameraSubmersionType.WATER)
+		{
+			return toggles.waterFog ? value : start ? FOG_START : FOG_END;
+		}
+		else if (cameraSubmersionType == CameraSubmersionType.LAVA)
+		{
+			return toggles.lavaFog ? value : start ? FOG_START : FOG_END;
+		}
+		else if (cameraSubmersionType == CameraSubmersionType.POWDER_SNOW)
+		{
+			return toggles.powderSnowFog ? value : start ? FOG_START : FOG_END;
+		}
+		else if (entity instanceof LivingEntity && ((LivingEntity) entity).hasStatusEffect(StatusEffects.BLINDNESS))
 		{
 			return toggles.blindnessFog ? value : start ? FOG_START : FOG_END;
 		}

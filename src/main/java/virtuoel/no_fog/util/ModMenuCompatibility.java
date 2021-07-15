@@ -1,18 +1,13 @@
 package virtuoel.no_fog.util;
 
-import io.github.prospector.modmenu.api.ConfigScreenFactory;
-import io.github.prospector.modmenu.api.ModMenuApi;
-import me.sargunvohra.mcmods.autoconfig1u.AutoConfig;
+import com.terraformersmc.modmenu.api.ConfigScreenFactory;
+import com.terraformersmc.modmenu.api.ModMenuApi;
+
+import me.shedaniel.autoconfig.AutoConfig;
 import virtuoel.no_fog.NoFogClient;
 
 public class ModMenuCompatibility implements ModMenuApi
 {
-	@Override
-	public String getModId()
-	{
-		return NoFogClient.MOD_ID;
-	}
-	
 	@Override
 	public ConfigScreenFactory<?> getModConfigScreenFactory()
 	{
