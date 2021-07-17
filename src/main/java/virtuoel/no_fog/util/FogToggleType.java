@@ -9,7 +9,7 @@ public enum FogToggleType implements Function<FogToggles, TriState>
 	POWDER_SNOW(t -> t.powderSnowFog),
 	BLINDNESS(t -> t.blindnessFog, true),
 	THICK(t -> t.thickFog),
-	SKY(t -> t.skyFog),
+	SKY(t -> t.skyFog, true),
 	TERRAIN(t -> t.terrainFog),
 	;
 	
