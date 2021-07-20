@@ -3,6 +3,8 @@
 	"text.no_fog.config.category.global": "Global settings",
 	"text.no_fog.config.category.dimensions": "Dimension Type settings",
 	"text.no_fog.config.category.biomes": "Biome settings",
+	"text.no_fog.config.default.enabled": "Default: enabled",
+	"text.no_fog.config.default.disabled": "Default: disabled",
 	"text.no_fog.config.sky_fog": "Enable sky fog",
 	"text.no_fog.config.terrain_fog": "Enable terrain fog",
 	"text.no_fog.config.thick_fog": "Enable thick fog",

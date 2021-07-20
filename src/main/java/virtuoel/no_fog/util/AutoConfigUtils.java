@@ -147,7 +147,9 @@ public class AutoConfigUtils
 				.startSubCategory(
 					new TranslatableText(Util.createTranslationKey("biome", id)),
 					addToggleEntries(data.get(idStr))
-				).build()
+				)
+				.setTooltip(new LiteralText(idStr))
+				.build()
 			);
 		}
 		
@@ -155,7 +157,8 @@ public class AutoConfigUtils
 			.startSubCategory(
 				new TranslatableText("text.no_fog.config.category.biomes"),
 				biomeEntries
-			).build()
+			)
+			.build()
 		);
 		
 		return entries;
@@ -169,32 +172,37 @@ public class AutoConfigUtils
 		entries.add(triStateEntry(
 			"text.no_fog.config.sky_fog",
 			data.skyFog,
-			newValue -> data.skyFog = newValue
+			newValue -> data.skyFog = newValue,
+			new TranslatableText("text.no_fog.config.default.enabled")
 		));
 		
 		entries.add(triStateEntry(
 			"text.no_fog.config.terrain_fog",
 			data.terrainFog,
-			newValue -> data.terrainFog = newValue
+			newValue -> data.terrainFog = newValue,
+			new TranslatableText("text.no_fog.config.default.disabled")
 		));
 		
 		entries.add(triStateEntry(
 			"text.no_fog.config.thick_fog",
 			data.thickFog,
 			newValue -> data.thickFog = newValue,
-			new TranslatableText("text.no_fog.config.thick_fog.tooltip")
+			new TranslatableText("text.no_fog.config.thick_fog.tooltip"),
+			new TranslatableText("text.no_fog.config.default.disabled")
 		));
 		
 		entries.add(triStateEntry(
 			"text.no_fog.config.water_fog",
 			data.waterFog,
-			newValue -> data.waterFog = newValue
+			newValue -> data.waterFog = newValue,
+			new TranslatableText("text.no_fog.config.default.disabled")
 		));
 		
 		entries.add(triStateEntry(
 			"text.no_fog.config.lava_fog",
 			data.lavaFog,
-			newValue -> data.lavaFog = newValue
+			newValue -> data.lavaFog = newValue,
+			new TranslatableText("text.no_fog.config.default.disabled")
 		));
 		
 		if (VersionUtils.MINOR >= 17)
@@ -202,14 +210,16 @@ public class AutoConfigUtils
 			entries.add(triStateEntry(
 				"text.no_fog.config.powder_snow_fog",
 				data.powderSnowFog,
-				newValue -> data.powderSnowFog = newValue
+				newValue -> data.powderSnowFog = newValue,
+				new TranslatableText("text.no_fog.config.default.disabled")
 			));
 		}
 		
 		entries.add(triStateEntry(
 			"text.no_fog.config.blindness_fog",
 			data.blindnessFog,
-			newValue -> data.blindnessFog = newValue
+			newValue -> data.blindnessFog = newValue,
+			new TranslatableText("text.no_fog.config.default.enabled")
 		));
 		
 		return entries;
