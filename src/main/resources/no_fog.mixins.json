@@ -6,6 +6,7 @@
 	"plugin": "virtuoel.no_fog.mixin.NoFogMixinConfigPlugin",
 	"client":
 	[
+		"client.compat116.BackgroundRendererMixin",
 		"client.compat117plus.BackgroundRendererMixin"
 	],
 	"injectors":
