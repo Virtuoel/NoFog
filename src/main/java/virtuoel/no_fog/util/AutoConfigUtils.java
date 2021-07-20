@@ -197,11 +197,14 @@ public class AutoConfigUtils
 			newValue -> data.lavaFog = newValue
 		));
 		
-		entries.add(triStateEntry(
-			"text.no_fog.config.powder_snow_fog",
-			data.powderSnowFog,
-			newValue -> data.powderSnowFog = newValue
-		));
+		if (VersionUtils.MINOR >= 17)
+		{
+			entries.add(triStateEntry(
+				"text.no_fog.config.powder_snow_fog",
+				data.powderSnowFog,
+				newValue -> data.powderSnowFog = newValue
+			));
+		}
 		
 		entries.add(triStateEntry(
 			"text.no_fog.config.blindness_fog",
