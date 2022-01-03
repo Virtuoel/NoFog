@@ -27,6 +27,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
 import net.minecraft.util.registry.BuiltinRegistries;
 import net.minecraft.util.registry.Registry;
+import net.minecraft.util.registry.SimpleRegistry;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.dimension.DimensionType;
@@ -94,7 +95,7 @@ public class AutoConfigUtils
 		List<String> ids = Arrays.asList(World.OVERWORLD.getValue().toString(), World.NETHER.getValue().toString(), World.END.getValue().toString());
 		if (client != null && client.world != null)
 		{
-			final Registry<DimensionType> dimensionRegistry = client.world.getRegistryManager().get(Registry.DIMENSION_TYPE_KEY);
+			final SimpleRegistry<DimensionType> dimensionRegistry = ((NoFogDynamicRegistryManagerExtensions) client.world.getRegistryManager()).no_fog_get(Registry.DIMENSION_TYPE_KEY);
 			ids = dimensionRegistry.getIds().stream().map(Identifier::toString).collect(Collectors.toList());
 		}
 		
@@ -129,10 +130,10 @@ public class AutoConfigUtils
 		final List<AbstractConfigListEntry> biomeEntries = new LinkedList<>();
 		
 		final MinecraftClient client = MinecraftClient.getInstance();
-		Registry<Biome> biomeRegistry = BuiltinRegistries.BIOME;
+		SimpleRegistry<Biome> biomeRegistry = (SimpleRegistry<Biome>) BuiltinRegistries.BIOME;
 		if (client != null && client.world != null)
 		{
-			biomeRegistry = client.world.getRegistryManager().get(Registry.BIOME_KEY);
+			biomeRegistry = ((NoFogDynamicRegistryManagerExtensions) client.world.getRegistryManager()).no_fog_get(Registry.BIOME_KEY);
 		}
 		
 		final List<Identifier> ids = biomeRegistry.getIds().stream().collect(Collectors.toList());

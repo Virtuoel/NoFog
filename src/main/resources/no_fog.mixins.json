@@ -7,7 +7,9 @@
 	"client":
 	[
 		"client.compat116.BackgroundRendererMixin",
-		"client.compat117plus.BackgroundRendererMixin"
+		"client.compat116.DynamicRegistryManagerMixin",
+		"client.compat117plus.BackgroundRendererMixin",
+		"client.compat117plus.DynamicRegistryManagerMixin"
 	],
 	"injectors":
 	{
