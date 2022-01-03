@@ -6,7 +6,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
@@ -15,6 +14,7 @@ import virtuoel.no_fog.util.AutoConfigUtils;
 import virtuoel.no_fog.util.DummyNoFogConfig;
 import virtuoel.no_fog.util.FogToggleType;
 import virtuoel.no_fog.util.FogToggles;
+import virtuoel.no_fog.util.ModLoaderUtils;
 
 public class NoFogClient implements ClientModInitializer
 {
@@ -22,7 +22,7 @@ public class NoFogClient implements ClientModInitializer
 	
 	public static final Logger LOGGER = LogManager.getLogger(MOD_ID);
 	
-	public static final boolean CONFIGS_LOADED = FabricLoader.getInstance().isModLoaded("cloth-config2");
+	public static final boolean CONFIGS_LOADED = ModLoaderUtils.isModLoaded("cloth_config") || ModLoaderUtils.isModLoaded("cloth-config") || ModLoaderUtils.isModLoaded("cloth-config2");
 	
 	private static final NoFogConfig FALLBACK = new DummyNoFogConfig();
 	

@@ -1,8 +1,9 @@
 plugins {
-	id "fabric-loom" version "0.8-SNAPSHOT"
+	id "fabric-loom" version "0.10.+"
 	id "eclipse"
 	id "maven-publish"
 	id "com.github.breadmoirai.github-release" version "2.2.12"
+	id "io.github.juuxel.loom-quiltflower-mini" version "1.2.1"
 	id "com.matthewprenger.cursegradle" version "1.4.0"
 	id "com.modrinth.minotaur" version "1.2.1"
 }
@@ -19,8 +20,7 @@ repositories {
 	}
 	maven {
 		name = "TerraformersMC"
-	//	url = "https://maven.terraformersmc.com/"
-		url = "https://raw.githubusercontent.com/TerraformersMC/Archive/main/releases/"
+		url = "https://maven.terraformersmc.com/"
 	}
 	maven {
 		name = "CurseForge"
@@ -52,12 +52,34 @@ if(project.hasProperty("forge_version")) {
 	version += "-forge"
 	
 	loom {
-		mixinConfig "${archives_base_name.replaceAll( /([A-Z])/, /_$1/ ).toLowerCase().replaceAll( /^_/, '' )}.mixins.json"
+		forge {
+			mixinConfig "${archives_base_name.replaceAll( /([A-Z])/, /_$1/ ).toLowerCase().replaceAll( /^_/, '' )}.mixins.json"
+		}
+	}
+}
+else {
+	loom {
+		def access_widener_file = file("src/main/resources/${archives_base_name.replaceAll( /([A-Z])/, /_$1/ ).toLowerCase().replaceAll( /^_/, '' )}.accesswidener");
+		if (access_widener_file.exists()) {
+			accessWidenerPath = access_widener_file
+		}
 	}
 }
 
-minecraft {
-	refmapName = "${archives_base_name}-refmap.json"
+loom {
+	mixin {
+		defaultRefmapName = "${archives_base_name}-refmap.json"
+	}
+}
+
+quiltflower {
+	addToRuntimeClasspath = true
+}
+
+afterEvaluate {
+	genSourcesWithQuiltflower {
+		options.ind = "\t"
+	}
 }
 
 if(project.hasProperty("loader_version")) {
@@ -88,13 +110,13 @@ dependencies {
 		if(project.hasProperty("fabric_api_version")) {
 			if(!project.hasProperty("fabric_modules") && !project.hasProperty("api_fabric_modules") && !project.hasProperty("impl_fabric_modules")) {
 				modCompileOnly "net.fabricmc.fabric-api:fabric-api:${fabric_api_version}", excludeLoader
-				modRuntime "net.fabricmc.fabric-api:fabric-api:${fabric_api_version}", excludeLoader
+				modLocalRuntime "net.fabricmc.fabric-api:fabric-api:${fabric_api_version}", excludeLoader
 			}
 			
 			if(project.hasProperty("fabric_modules")) {
 				project.fabric_modules.split(", ").each { String module ->
 					modCompileOnly fabricApi.module(module, project.fabric_api_version), excludeLoader
-					modRuntime fabricApi.module(module, project.fabric_api_version), excludeLoader
+					modLocalRuntime fabricApi.module(module, project.fabric_api_version), excludeLoader
 				}
 			}
 			
@@ -119,11 +141,11 @@ dependencies {
 		
 		if(project.hasProperty("modmenu_version")) {
 			modCompileOnly "com.terraformersmc:modmenu:${modmenu_version}", excludeFabric
-			modRuntime "com.terraformersmc:modmenu:${modmenu_version}", excludeFabric
+			modLocalRuntime "com.terraformersmc:modmenu:${modmenu_version}", excludeFabric
 		}
 		
 		if(project.hasProperty("cloth_config_version")) {
-			modApi("me.shedaniel.cloth:cloth-config-fabric:${cloth_config_version}", excludeFabric)
+			modApi("me.shedaniel.cloth:cloth-config-${project.hasProperty("forge_version") ? "forge" : "fabric"}:${cloth_config_version}", excludeFabric)
 		}
 	}
 }
@@ -132,10 +154,6 @@ processResources {
 	inputs.property "version", project.version
 	
 	filesMatching("fabric.mod.json") {
-		expand "version": project.version
-	}
-	
-	filesMatching("META-INF/mods.toml") {
 		expand "version": project.version
 	}
 }
@@ -147,9 +165,15 @@ eclipse {
 		buildCommand "org.eclipse.buildship.core.gradleprojectbuilder"
 		natures "org.eclipse.buildship.core.gradleprojectnature"
 	}
-	if(!proj.hasProperty("forge_version") || ((minecraft_version.split(/\./, -1)[1] as Integer) >= 17)) {
+	if(!proj.hasProperty("forge_version")) {
 		jdt {
-			javaRuntimeName = "JavaSE-16"
+			javaRuntimeName = "JavaSE-17"
+		}
+	}
+	else {
+		def minor = (minecraft_version.split(/\./, -1)[1] as Integer);
+		jdt {
+			javaRuntimeName = "JavaSE-${minor >= 18 ? 17 : minor >= 17 ? 16 : 1.8}"
 		}
 	}
 }
@@ -188,13 +212,7 @@ task sourcesJar(type: Jar, dependsOn: classes) {
 publishing {
 	publications {
 		mavenJava(MavenPublication) {
-			artifact(remapJar) {
-				builtBy remapJar
-			}
-			artifact(sourcesJar) {
-				classifier = "sources"
-				builtBy remapSourcesJar
-			}
+			from components.java
 		}
 	}
 	
@@ -300,7 +318,7 @@ curseforge {
 				def game_versions = project.curseforge_release_versions.split(", ")
 				display_name_prefix = "[${game_versions[0]} - ${game_versions[-1].split("-")[0]}] "
 				if(game_versions[0] == game_versions[-1].split("-")[0]) {
-					display_name_prefix = "[${game_versions[0]}]"
+					display_name_prefix = "[${game_versions[0]}] "
 				}
 				game_versions.each { String gameVersion ->
 					addGameVersion gameVersion
@@ -308,13 +326,13 @@ curseforge {
 			}
 			
 			if(project.hasProperty("forge_version")) {
-				display_name_prefix += " [Forge] "
+				display_name_prefix += "[Forge] "
 			}
 			
 			mainArtifact(remapJar) {
 				displayName = "${display_name_prefix}${archives_base_name} ${project.mod_version}"
 				
-				if(project.hasProperty("required_dep_slugs") || project.hasProperty("embedded_lib_slugs") || project.hasProperty("optional_dep_slugs") || project.hasProperty("compatible_tool_slugs") || project.hasProperty("incompatible_slugs")) {
+				if(project.hasProperty("curseforge_required_dep_slugs") || project.hasProperty("curseforge_embedded_lib_slugs") || project.hasProperty("curseforge_optional_dep_slugs") || project.hasProperty("curseforge_compatible_tool_slugs") || project.hasProperty("curseforge_incompatible_slugs")) {
 					relations {
 						if(project.hasProperty("curseforge_required_dep_slugs")) {
 							project.curseforge_required_dep_slugs.split(", ").each { String slug ->
