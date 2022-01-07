@@ -1,37 +1,27 @@
 {
 	"schemaVersion": 1,
 	"id": "no_fog",
-	"name": "No Fog",
-	"version": "${version}",
-	"description": "Removes different types of fog.",
+	"name": "No Fog (Forge Version)",
+	"version": "0.0.0+forge",
+	"description": "Forge version of No Fog, but you are playing on a Fabric instance! Did you download the wrong mod .jar?",
 	"authors":
 	[
 		"Virtuoel"
 	],
 	"contact":
 	{
-		"homepage": "https://www.curseforge.com/minecraft/mc-mods/nofog"
+		"homepage": "https://www.curseforge.com/minecraft/mc-mods/nofog",
+		"issues": "https://github.com/Virtuoel/NoFog/issues",
+		"sources": "https://github.com/Virtuoel/NoFog"
 	},
 	"license": "MIT",
-	"icon": "assets/no_fog/icon.png",
+	"icon": "no_fog_icon.png",
 	"environment": "client",
-	"depends":
-	{
-		"fabricloader": ">=0.8.0"
-	},
 	"entrypoints":
 	{
 		"client":
 		[
-			"virtuoel.no_fog.NoFogClient"
-		],
-		"modmenu":
-		[
-			"virtuoel.no_fog.util.ModMenuCompatibility"
+			"virtuoel.no_fog.util.FabricEntrypoint::onInitialize"
 		]
-	},
-	"mixins":
-	[
-		"no_fog.mixins.json"
-	]
+	}
 }
