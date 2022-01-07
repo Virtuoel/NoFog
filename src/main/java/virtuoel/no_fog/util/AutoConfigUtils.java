@@ -31,8 +31,8 @@ import net.minecraft.util.registry.SimpleRegistry;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.dimension.DimensionType;
+import net.minecraftforge.fml.ExtensionPoint;
 import net.minecraftforge.fml.ModLoadingContext;
-import net.minecraftforge.fmlclient.ConfigGuiHandler;
 import virtuoel.no_fog.api.NoFogConfig;
 
 public class AutoConfigUtils
@@ -46,8 +46,8 @@ public class AutoConfigUtils
 		registry.registerPredicateProvider(AutoConfigUtils::biomeToggleMapEntries, f -> f.getName().equals("biomeToggles"));
 		
 		ModLoadingContext.get().registerExtensionPoint(
-			ConfigGuiHandler.ConfigGuiFactory.class,
-			() -> new ConfigGuiHandler.ConfigGuiFactory((mc, screen) -> AutoConfig.getConfigScreen(NoFogConfigImpl.class, screen).get())
+			ExtensionPoint.CONFIGGUIFACTORY,
+			() -> (mc, screen) -> AutoConfig.getConfigScreen(NoFogConfigImpl.class, screen).get()
 		);
 	}
 	
