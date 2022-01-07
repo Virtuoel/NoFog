@@ -10,14 +10,16 @@
 	],
 	"contact":
 	{
-		"homepage": "https://www.curseforge.com/minecraft/mc-mods/nofog"
+		"homepage": "https://www.curseforge.com/minecraft/mc-mods/nofog",
+		"issues": "https://github.com/Virtuoel/NoFog/issues",
+		"sources": "https://github.com/Virtuoel/NoFog"
 	},
 	"license": "MIT",
 	"icon": "assets/no_fog/icon.png",
 	"environment": "client",
 	"depends":
 	{
-		"fabricloader": ">=0.8.0"
+		"fabricloader": ">=0.12.12"
 	},
 	"entrypoints":
 	{
