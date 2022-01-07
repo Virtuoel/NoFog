@@ -13,12 +13,12 @@ import virtuoel.no_fog.util.NoFogDynamicRegistryManagerExtensions;
 @Mixin(DynamicRegistryManager.class)
 public abstract class DynamicRegistryManagerMixin implements NoFogDynamicRegistryManagerExtensions
 {
-	@Shadow(remap = false)
-	abstract <E> MutableRegistry<E> method_30530(RegistryKey<? extends Registry<? extends E>> key);
+	@Shadow
+	abstract <E> MutableRegistry<E> get(RegistryKey<? extends Registry<? extends E>> key);
 	
 	@Override
 	public <E> SimpleRegistry<E> no_fog_get(RegistryKey<? extends Registry<? extends E>> key)
 	{
-		return (SimpleRegistry<E>) method_30530(key);
+		return (SimpleRegistry<E>) get(key);
 	}
 }

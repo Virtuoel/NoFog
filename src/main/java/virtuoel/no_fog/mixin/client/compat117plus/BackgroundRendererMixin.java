@@ -12,7 +12,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.client.render.BackgroundRenderer;
 import net.minecraft.client.render.Camera;
-import net.minecraft.client.render.CameraSubmersionType;
+// import net.minecraft.client.render.CameraSubmersionType;
 import net.minecraft.client.render.BackgroundRenderer.FogType;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
@@ -23,6 +23,7 @@ import virtuoel.no_fog.util.FogToggleType;
 @Mixin(BackgroundRenderer.class)
 public abstract class BackgroundRendererMixin
 {
+	/*
 	@Inject(method = "applyFog", locals = LocalCapture.CAPTURE_FAILHARD, at = @At(value = "INVOKE", ordinal = 1, shift = Shift.AFTER, target = "Lcom/mojang/blaze3d/systems/RenderSystem;setShaderFogEnd(F)V", remap = false))
 	private static void applyFogModifyWaterEnd(Camera camera, BackgroundRenderer.FogType fogType, float viewDistance, boolean thickFog, CallbackInfo info, CameraSubmersionType cameraSubmersionType, Entity entity, float hook, float end)
 	{
@@ -92,4 +93,5 @@ public abstract class BackgroundRendererMixin
 		
 		return NoFogClient.getFogDistance(type, entity, fogDistance, start);
 	}
+	*/
 }
