@@ -31,8 +31,8 @@ import net.minecraft.util.registry.SimpleRegistry;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.dimension.DimensionType;
-import net.minecraftforge.client.ConfigGuiHandler;
 import net.minecraftforge.fml.ModLoadingContext;
+import net.minecraftforge.fmlclient.ConfigGuiHandler;
 import virtuoel.no_fog.api.NoFogConfig;
 
 public class AutoConfigUtils
