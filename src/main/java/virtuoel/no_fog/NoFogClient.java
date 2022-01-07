@@ -5,11 +5,11 @@ import java.util.function.Supplier;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import net.fabricmc.api.ClientModInitializer;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.registry.Registry;
+import net.minecraftforge.fml.common.Mod;
 import virtuoel.no_fog.api.NoFogConfig;
 import virtuoel.no_fog.util.AutoConfigUtils;
 import virtuoel.no_fog.util.DummyNoFogConfig;
@@ -18,7 +18,8 @@ import virtuoel.no_fog.util.FogToggles;
 import virtuoel.no_fog.util.ModLoaderUtils;
 import virtuoel.no_fog.util.NoFogDynamicRegistryManagerExtensions;
 
-public class NoFogClient implements ClientModInitializer
+@Mod(NoFogClient.MOD_ID)
+public class NoFogClient
 {
 	public static final String MOD_ID = "no_fog";
 	
@@ -31,12 +32,6 @@ public class NoFogClient implements ClientModInitializer
 	public static final Supplier<NoFogConfig> CONFIG = !CONFIGS_LOADED ? () -> FALLBACK : AutoConfigUtils.CONFIG;
 	
 	public NoFogClient()
-	{
-		
-	}
-	
-	@Override
-	public void onInitializeClient()
 	{
 		if (CONFIGS_LOADED)
 		{

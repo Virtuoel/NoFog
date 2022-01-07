@@ -31,6 +31,8 @@ import net.minecraft.util.registry.SimpleRegistry;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.dimension.DimensionType;
+import net.minecraftforge.client.ConfigGuiHandler;
+import net.minecraftforge.fml.ModLoadingContext;
 import virtuoel.no_fog.api.NoFogConfig;
 
 public class AutoConfigUtils
@@ -42,6 +44,11 @@ public class AutoConfigUtils
 		registry.registerPredicateProvider(AutoConfigUtils::globalToggleEntry, f -> f.getName().equals("globalToggles"));
 		registry.registerPredicateProvider(AutoConfigUtils::dimensionToggleMapEntries, f -> f.getName().equals("dimensionToggles"));
 		registry.registerPredicateProvider(AutoConfigUtils::biomeToggleMapEntries, f -> f.getName().equals("biomeToggles"));
+		
+		ModLoadingContext.get().registerExtensionPoint(
+			ConfigGuiHandler.ConfigGuiFactory.class,
+			() -> new ConfigGuiHandler.ConfigGuiFactory((mc, screen) -> AutoConfig.getConfigScreen(NoFogConfigImpl.class, screen).get())
+		);
 	}
 	
 	public static final Supplier<NoFogConfig> CONFIG = () -> AutoConfig.getConfigHolder(NoFogConfigImpl.class).getConfig();
