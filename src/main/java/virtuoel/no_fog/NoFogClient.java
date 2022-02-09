@@ -54,7 +54,7 @@ public class NoFogClient implements ClientModInitializer
 	
 	public static boolean isToggleEnabled(FogToggleType type, Entity entity)
 	{
-		final String biome = ((NoFogDynamicRegistryManagerExtensions) entity.world.getRegistryManager()).no_fog_get(Registry.BIOME_KEY).getId(entity.world.getBiome(new BlockPos(entity.getPos()))).toString();
+		final String biome = entity.world.getRegistryManager().get(Registry.BIOME_KEY).getId(entity.world.getBiome(new BlockPos(entity.getPos())).value()).toString();
 		final String dimension = entity.world.getRegistryKey().getValue().toString();
 		
 		final NoFogConfig config = NoFogClient.CONFIG.get();
