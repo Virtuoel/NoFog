@@ -1,5 +1,14 @@
-package virtuoel.no_fog.mixin.client.compat117plus;
+package virtuoel.no_fog.mixin.client.compat1182plus;
 
+import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.client.render.BackgroundRenderer;
+import net.minecraft.client.render.BackgroundRenderer.FogType;
+import net.minecraft.client.render.Camera;
+import net.minecraft.client.render.CameraSubmersionType;
+import net.minecraft.client.render.FogShape;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.effect.StatusEffects;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -7,16 +16,6 @@ import org.spongepowered.asm.mixin.injection.At.Shift;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
-
-import com.mojang.blaze3d.systems.RenderSystem;
-
-import net.minecraft.client.render.BackgroundRenderer;
-import net.minecraft.client.render.Camera;
-import net.minecraft.client.render.CameraSubmersionType;
-import net.minecraft.client.render.BackgroundRenderer.FogType;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.effect.StatusEffects;
 import virtuoel.no_fog.NoFogClient;
 import virtuoel.no_fog.util.FogToggleType;
 
@@ -24,7 +23,7 @@ import virtuoel.no_fog.util.FogToggleType;
 public abstract class BackgroundRendererMixin
 {
 	@Inject(method = "applyFog", locals = LocalCapture.CAPTURE_FAILHARD, at = @At(value = "INVOKE", ordinal = 0, shift = Shift.AFTER, target = "Lcom/mojang/blaze3d/systems/RenderSystem;setShaderFogEnd(F)V", remap = false))
-	private static void applyFogModifyWaterEnd(Camera camera, BackgroundRenderer.FogType fogType, float viewDistance, boolean thickFog, CallbackInfo info, CameraSubmersionType cameraSubmersionType, Entity entity, float end)
+	private static void applyFogModifyWaterEnd(Camera camera, FogType fogType, float viewDistance, boolean thickFog, CallbackInfo info, CameraSubmersionType cameraSubmersionType, Entity entity, FogShape fogShape, float end)
 	{
 		final float modified = getFogDistance(fogType, viewDistance, thickFog, cameraSubmersionType, entity, end, false);
 		
@@ -34,8 +33,8 @@ public abstract class BackgroundRendererMixin
 		}
 	}
 	
-	@Inject(method = "applyFog", locals = LocalCapture.CAPTURE_FAILHARD, at = @At(value = "INVOKE", ordinal = 1, shift = Shift.AFTER, target = "Lcom/mojang/blaze3d/systems/RenderSystem;setShaderFogStart(F)V", remap = false))
-	private static void applyFogModifyStart(Camera camera, BackgroundRenderer.FogType fogType, float viewDistance, boolean thickFog, CallbackInfo info, CameraSubmersionType cameraSubmersionType, Entity entity, float start)
+	@Inject(method = "applyFog", locals = LocalCapture.CAPTURE_FAILHARD, at = @At(value = "INVOKE", ordinal = 0, shift = Shift.AFTER, target = "Lcom/mojang/blaze3d/systems/RenderSystem;setShaderFogStart(F)V", remap = false))
+	private static void applyFogModifyStart(Camera camera, FogType fogType, float viewDistance, boolean thickFog, CallbackInfo info, CameraSubmersionType cameraSubmersionType, Entity entity, FogShape fogShape, float start)
 	{
 		final float modified = getFogDistance(fogType, viewDistance, thickFog, cameraSubmersionType, entity, start, true);
 		
@@ -45,8 +44,8 @@ public abstract class BackgroundRendererMixin
 		}
 	}
 	
-	@Inject(method = "applyFog", locals = LocalCapture.CAPTURE_FAILHARD, at = @At(value = "INVOKE", ordinal = 1, shift = Shift.AFTER, target = "Lcom/mojang/blaze3d/systems/RenderSystem;setShaderFogEnd(F)V", remap = false))
-	private static void applyFogModifyEnd(Camera camera, BackgroundRenderer.FogType fogType, float viewDistance, boolean thickFog, CallbackInfo info, CameraSubmersionType cameraSubmersionType, Entity entity, float start, float end)
+	@Inject(method = "applyFog", locals = LocalCapture.CAPTURE_FAILHARD, at = @At(value = "INVOKE", ordinal = 0, shift = Shift.AFTER, target = "Lcom/mojang/blaze3d/systems/RenderSystem;setShaderFogEnd(F)V", remap = false))
+	private static void applyFogModifyEnd(Camera camera, FogType fogType, float viewDistance, boolean thickFog, CallbackInfo info, CameraSubmersionType cameraSubmersionType, Entity entity, FogShape fogShape, float start, float end)
 	{
 		final float modified = getFogDistance(fogType, viewDistance, thickFog, cameraSubmersionType, entity, end, false);
 		
@@ -57,7 +56,7 @@ public abstract class BackgroundRendererMixin
 	}
 	
 	@Unique
-	private static float getFogDistance(BackgroundRenderer.FogType fogType, float viewDistance, boolean thickFog, CameraSubmersionType cameraSubmersionType, Entity entity, float fogDistance, boolean start)
+	private static float getFogDistance(FogType fogType, float viewDistance, boolean thickFog, CameraSubmersionType cameraSubmersionType, Entity entity, float fogDistance, boolean start)
 	{
 		final FogToggleType type;
 		

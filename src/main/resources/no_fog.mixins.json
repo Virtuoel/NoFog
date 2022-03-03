@@ -8,8 +8,9 @@
 	[
 		"client.compat116.BackgroundRendererMixin",
 		"client.compat116.DynamicRegistryManagerMixin",
-		"client.compat117plus.BackgroundRendererMixin",
-		"client.compat117plus.DynamicRegistryManagerMixin"
+		"client.compat117plus.compat1181minus.BackgroundRendererMixin",
+		"client.compat117plus.compat1181minus.DynamicRegistryManagerMixin",
+		"client.compat1182plus.BackgroundRendererMixin"
 	],
 	"injectors":
 	{

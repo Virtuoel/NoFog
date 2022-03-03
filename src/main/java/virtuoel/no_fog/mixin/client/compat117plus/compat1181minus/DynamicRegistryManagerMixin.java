@@ -1,4 +1,4 @@
-package virtuoel.no_fog.mixin.client.compat117plus;
+package virtuoel.no_fog.mixin.client.compat117plus.compat1181minus;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
