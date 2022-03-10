@@ -27,10 +27,10 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
 import net.minecraft.util.registry.BuiltinRegistries;
 import net.minecraft.util.registry.Registry;
-import net.minecraft.util.registry.SimpleRegistry;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.dimension.DimensionType;
+import virtuoel.no_fog.NoFogClient;
 import virtuoel.no_fog.api.NoFogConfig;
 
 public class AutoConfigUtils
@@ -47,19 +47,6 @@ public class AutoConfigUtils
 	public static final Supplier<NoFogConfig> CONFIG = () -> AutoConfig.getConfigHolder(NoFogConfigImpl.class).getConfig();
 	
 	private static final ConfigEntryBuilder ENTRY_BUILDER = ConfigEntryBuilder.create();
-	
-	@SuppressWarnings("unchecked")
-	private static <T> T getFieldValue(Field field, Object object, Supplier<T> defaultValue)
-	{
-		try
-		{
-			return (T) field.get(object);
-		}
-		catch (IllegalArgumentException | IllegalAccessException e)
-		{
-			return defaultValue.get();
-		}
-	}
 	
 	@SuppressWarnings("rawtypes")
 	private static List<AbstractConfigListEntry> globalToggleEntry(String i13n, Field field, Object config, Object defaults, GuiRegistryAccess registry)
@@ -86,7 +73,7 @@ public class AutoConfigUtils
 	@SuppressWarnings("rawtypes")
 	private static List<AbstractConfigListEntry> dimensionToggleMapEntries(String i13n, Field field, Object config, Object defaults, GuiRegistryAccess registry)
 	{
-		final Map<String, FogToggles> data = getFieldValue(field, config, HashMap::new);
+		final Map<String, FogToggles> data = ReflectionUtils.getFieldValue(field, config, HashMap::new);
 		
 		final List<AbstractConfigListEntry> entries = new LinkedList<>();
 		final List<AbstractConfigListEntry> dimensionEntries = new LinkedList<>();
@@ -95,8 +82,15 @@ public class AutoConfigUtils
 		List<String> ids = Arrays.asList(World.OVERWORLD.getValue().toString(), World.NETHER.getValue().toString(), World.END.getValue().toString());
 		if (client != null && client.world != null)
 		{
-			final Registry<DimensionType> dimensionRegistry = client.world.getRegistryManager().get(Registry.DIMENSION_TYPE_KEY);
-			ids = dimensionRegistry.getIds().stream().map(Identifier::toString).collect(Collectors.toList());
+			try
+			{
+				Registry<DimensionType> dimensionRegistry = ReflectionUtils.getDynamicRegistry(client.world, Registry.DIMENSION_TYPE_KEY);
+				ids = dimensionRegistry.getIds().stream().map(Identifier::toString).collect(Collectors.toList());
+			}
+			catch (Throwable e)
+			{
+				NoFogClient.LOGGER.catching(e);
+			}
 		}
 		
 		for (final String id : ids)
@@ -124,7 +118,7 @@ public class AutoConfigUtils
 	@SuppressWarnings("rawtypes")
 	private static List<AbstractConfigListEntry> biomeToggleMapEntries(String i13n, Field field, Object config, Object defaults, GuiRegistryAccess registry)
 	{
-		final Map<String, FogToggles> data = getFieldValue(field, config, HashMap::new);
+		final Map<String, FogToggles> data = ReflectionUtils.getFieldValue(field, config, HashMap::new);
 		
 		final List<AbstractConfigListEntry> entries = new LinkedList<>();
 		final List<AbstractConfigListEntry> biomeEntries = new LinkedList<>();
@@ -133,7 +127,14 @@ public class AutoConfigUtils
 		Registry<Biome> biomeRegistry = BuiltinRegistries.BIOME;
 		if (client != null && client.world != null)
 		{
-			biomeRegistry = client.world.getRegistryManager().get(Registry.BIOME_KEY);
+			try
+			{
+				biomeRegistry = ReflectionUtils.getDynamicRegistry(client.world, Registry.BIOME_KEY);
+			}
+			catch (Throwable e)
+			{
+				
+			}
 		}
 		
 		final List<Identifier> ids = biomeRegistry.getIds().stream().collect(Collectors.toList());

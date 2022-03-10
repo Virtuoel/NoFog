@@ -8,15 +8,15 @@ import org.apache.logging.log4j.Logger;
 import net.fabricmc.api.ClientModInitializer;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.registry.Registry;
+import net.minecraft.world.biome.Biome;
 import virtuoel.no_fog.api.NoFogConfig;
 import virtuoel.no_fog.util.AutoConfigUtils;
 import virtuoel.no_fog.util.DummyNoFogConfig;
 import virtuoel.no_fog.util.FogToggleType;
 import virtuoel.no_fog.util.FogToggles;
 import virtuoel.no_fog.util.ModLoaderUtils;
-import virtuoel.no_fog.util.NoFogDynamicRegistryManagerExtensions;
+import virtuoel.no_fog.util.ReflectionUtils;
 
 public class NoFogClient implements ClientModInitializer
 {
@@ -42,6 +42,8 @@ public class NoFogClient implements ClientModInitializer
 		{
 			AutoConfigUtils.initialize();
 		}
+		
+		ReflectionUtils.init();
 	}
 	
 	public static final float FOG_START = -8.0F;
@@ -52,15 +54,36 @@ public class NoFogClient implements ClientModInitializer
 		return isToggleEnabled(type, entity) ? fogDistance : start ? FOG_START : FOG_END;
 	}
 	
+	private static boolean loggedError = false;
+	
 	public static boolean isToggleEnabled(FogToggleType type, Entity entity)
 	{
-		final String biome = entity.world.getRegistryManager().get(Registry.BIOME_KEY).getId(entity.world.getBiome(new BlockPos(entity.getPos())).value()).toString();
 		final String dimension = entity.world.getRegistryKey().getValue().toString();
 		
 		final NoFogConfig config = NoFogClient.CONFIG.get();
 		final FogToggles globalToggles = config.getGlobalToggles();
-		final FogToggles biomeToggles = config.getBiomeToggles().computeIfAbsent(biome, FogToggles::new);
 		final FogToggles dimensionToggles = config.getDimensionToggles().computeIfAbsent(dimension, FogToggles::new);
+		
+		final String biomeId;
+		try
+		{
+			final Biome biome = ReflectionUtils.getBiome(entity);
+			biomeId = ReflectionUtils.getDynamicRegistry(entity.world, Registry.BIOME_KEY).getId(biome).toString();
+		}
+		catch (Throwable e)
+		{
+			if (!loggedError)
+			{
+				loggedError = true;
+				NoFogClient.LOGGER.catching(e);
+			}
+			
+			return type.apply(dimensionToggles)
+				.orElse(type.apply(globalToggles)
+				.orElse(type.defaultToggle));
+		}
+		
+		final FogToggles biomeToggles = config.getBiomeToggles().computeIfAbsent(biomeId, FogToggles::new);
 		
 		return type.apply(biomeToggles).orElse(
 			type.apply(dimensionToggles).orElse(

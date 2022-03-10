@@ -8,6 +8,10 @@
 	[
 		"Virtuoel"
 	],
+	"contributors":
+	[
+		"Emmaffle"
+	],
 	"contact":
 	{
 		"homepage": "https://www.curseforge.com/minecraft/mc-mods/nofog",
@@ -19,7 +23,7 @@
 	"environment": "client",
 	"depends":
 	{
-		"fabricloader": ">=0.12.12"
+		"fabricloader": ">=0.13.3"
 	},
 	"entrypoints":
 	{
