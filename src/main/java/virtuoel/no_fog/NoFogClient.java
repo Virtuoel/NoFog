@@ -16,7 +16,7 @@ import virtuoel.no_fog.util.DummyNoFogConfig;
 import virtuoel.no_fog.util.FogToggleType;
 import virtuoel.no_fog.util.FogToggles;
 import virtuoel.no_fog.util.ModLoaderUtils;
-import virtuoel.no_fog.util.NoFogDynamicRegistryManagerExtensions;
+import virtuoel.no_fog.util.ReflectionUtils;
 
 @Mod(NoFogClient.MOD_ID)
 public class NoFogClient
@@ -37,6 +37,8 @@ public class NoFogClient
 		{
 			AutoConfigUtils.initialize();
 		}
+		
+		ReflectionUtils.init();
 	}
 	
 	public static final float FOG_START = -8.0F;
@@ -49,13 +51,15 @@ public class NoFogClient
 	
 	public static boolean isToggleEnabled(FogToggleType type, Entity entity)
 	{
-		final String biome = ((NoFogDynamicRegistryManagerExtensions) entity.world.getRegistryManager()).no_fog_get(Registry.BIOME_KEY).getId(entity.world.getBiome(new BlockPos(entity.getPos()))).toString();
 		final String dimension = entity.world.getRegistryKey().getValue().toString();
 		
 		final NoFogConfig config = NoFogClient.CONFIG.get();
 		final FogToggles globalToggles = config.getGlobalToggles();
-		final FogToggles biomeToggles = config.getBiomeToggles().computeIfAbsent(biome, FogToggles::new);
 		final FogToggles dimensionToggles = config.getDimensionToggles().computeIfAbsent(dimension, FogToggles::new);
+		
+		final String biomeId = entity.world.getRegistryManager().get(Registry.BIOME_KEY).getId(entity.world.getBiome(new BlockPos(entity.getPos()))).toString();
+		
+		final FogToggles biomeToggles = config.getBiomeToggles().computeIfAbsent(biomeId, FogToggles::new);
 		
 		return type.apply(biomeToggles).orElse(
 			type.apply(dimensionToggles).orElse(
