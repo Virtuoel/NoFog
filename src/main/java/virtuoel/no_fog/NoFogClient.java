@@ -57,7 +57,7 @@ public class NoFogClient
 		final FogToggles globalToggles = config.getGlobalToggles();
 		final FogToggles dimensionToggles = config.getDimensionToggles().computeIfAbsent(dimension, FogToggles::new);
 		
-		final String biomeId = entity.world.getRegistryManager().get(Registry.BIOME_KEY).getId(entity.world.getBiome(new BlockPos(entity.getPos()))).toString();
+		final String biomeId = entity.world.getRegistryManager().get(Registry.BIOME_KEY).getId(entity.world.getBiome(new BlockPos(entity.getPos())).value()).toString();
 		
 		final FogToggles biomeToggles = config.getBiomeToggles().computeIfAbsent(biomeId, FogToggles::new);
 		

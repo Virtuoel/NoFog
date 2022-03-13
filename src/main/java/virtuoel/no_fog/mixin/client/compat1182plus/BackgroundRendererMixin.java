@@ -11,8 +11,8 @@ import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.client.render.BackgroundRenderer;
 import net.minecraft.client.render.Camera;
-// import net.minecraft.client.render.CameraSubmersionType;
-// import net.minecraft.client.render.FogShape;
+import net.minecraft.client.render.CameraSubmersionType;
+import net.minecraft.client.render.FogShape;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffects;
@@ -22,9 +22,8 @@ import virtuoel.no_fog.util.FogToggleType;
 @Mixin(value = BackgroundRenderer.class, priority = 910)
 public abstract class BackgroundRendererMixin
 {
-	/*
-	@Inject(method = "applyFog", locals = LocalCapture.CAPTURE_FAILHARD, at = @At("RETURN"))
-	private static void applyFogModifyDistance(Camera camera, BackgroundRenderer.FogType fogType, float viewDistance, boolean thickFog, CallbackInfo info, CameraSubmersionType cameraSubmersionType, Entity entity, FogShape fogShape, float start, float end)
+	@Inject(method = "setupFog(Lnet/minecraft/client/render/Camera;Lnet/minecraft/client/render/BackgroundRenderer$FogType;FZF)V", locals = LocalCapture.CAPTURE_FAILHARD, at = @At("RETURN"))
+	private static void applyFogModifyDistance(Camera camera, BackgroundRenderer.FogType fogType, float viewDistance, boolean thickFog, float tickDelta, CallbackInfo info, CameraSubmersionType cameraSubmersionType, Entity entity, FogShape fogShape, float hook, float start, float end)
 	{
 		final float modifiedStart = getFogDistance(fogType, viewDistance, thickFog, cameraSubmersionType, entity, start, true);
 		final float modifiedEnd = getFogDistance(fogType, viewDistance, thickFog, cameraSubmersionType, entity, end, false);
@@ -76,5 +75,4 @@ public abstract class BackgroundRendererMixin
 		
 		return NoFogClient.getFogDistance(type, entity, fogDistance, start);
 	}
-	*/
 }
