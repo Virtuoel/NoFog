@@ -96,7 +96,7 @@ public class ReflectionUtils
 		{
 			if (VersionUtils.MINOR > 18 || (VersionUtils.MINOR == 18 && VersionUtils.PATCH >= 2))
 			{
-				((RegistryEntry<Biome>) GET_BIOME.invokeExact((WorldView) entity.world, new BlockPos(entity.getPos()))).value();
+				return ((RegistryEntry<Biome>) GET_BIOME.invokeExact((WorldView) entity.world, new BlockPos(entity.getPos()))).value();
 			}
 			
 			return (Biome) GET_BIOME.invokeExact((WorldView) entity.world, new BlockPos(entity.getPos()));
