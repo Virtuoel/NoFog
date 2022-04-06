@@ -89,7 +89,11 @@ if(project.hasProperty("fabric_version")) {
 
 dependencies {
 	minecraft "com.mojang:minecraft:${minecraft_version}"
-	mappings "net.fabricmc:yarn:${yarn_mappings}:v2"
+	mappings loom.layered {
+		project.yarn_mappings.split(", ").each { String mapping ->
+			mappings "net.fabricmc:yarn:${mapping}:v2"
+		}
+	}
 	
 	if(project.hasProperty("forge_version")) {
 		forge "net.minecraftforge:forge:${forge_version}"
@@ -156,6 +160,10 @@ processResources {
 	
 	filesMatching("fabric.mod.json") {
 		expand "version": project.version
+	}
+	
+	filesMatching("META-INF/mods.toml") {
+		expand "file": [ jarVersion: project.version ]
 	}
 }
 
@@ -494,4 +502,9 @@ modrinth {
 		uploadFile = remapJar
 		additionalFiles = files("${project.buildDir}/libs/${archivesBaseName}-${version}-sources.jar").files
 	}
+}
+
+tasks.named("modrinth") {
+	dependsOn remapJar
+	dependsOn remapSourcesJar
 }
