@@ -39,5 +39,16 @@
 	"mixins":
 	[
 		"no_fog.mixins.json"
-	]
+	],
+	"custom":
+	{
+		"sodium-extra:options":
+		{
+			"mixin.fog": false
+		},
+		"sodium extra:options":
+		{
+			"mixin.fog": false
+		}
+	}
 }
