@@ -39,7 +39,7 @@
 	"mixins":
 	[
 		"no_fog.mixins.json"
-	]
+	],
 	"custom":
 	{
 		"sodium-extra:options":
