@@ -29,8 +29,9 @@ public enum FogToggleType implements Function<FogToggles, TriState>
 	}
 	
 	@Override
-	public TriState apply(FogToggles t)
+	public TriState apply(final FogToggles t)
 	{
-		return delegate.apply(t);
+		final TriState ret = delegate.apply(t);
+		return ret == null ? TriState.DEFAULT : ret;
 	}
 }
