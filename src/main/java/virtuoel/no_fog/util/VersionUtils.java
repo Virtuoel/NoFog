@@ -90,6 +90,9 @@ public class VersionUtils
 				(mixinClassName.contains(".compat119minus.") && MINOR > 19) ||
 				(mixinClassName.contains(".compat1190.") && (MINOR != 19 || PATCH != 0)) ||
 				(mixinClassName.contains(".compat1190minus.") && (MINOR > 19 || (MINOR == 19 && PATCH > 0))) ||
+				(mixinClassName.contains(".compat1191.") && (MINOR != 19 || PATCH != 1)) ||
+				(mixinClassName.contains(".compat1191plus.") && (MINOR < 19 || (MINOR == 19 && PATCH < 1))) ||
+				(mixinClassName.contains(".compat1191minus.") && (MINOR > 19 || (MINOR == 19 && PATCH > 1))) ||
 				false
 			)
 			{

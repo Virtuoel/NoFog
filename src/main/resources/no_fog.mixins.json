@@ -9,7 +9,8 @@
 	[
 		"client.compat116.BackgroundRendererMixin",
 		"client.compat117plus.compat1181minus.BackgroundRendererMixin",
-		"client.compat1182plus.BackgroundRendererMixin"
+		"client.compat1182.BackgroundRendererMixin",
+		"client.compat119plus.BackgroundRendererMixin"
 	],
 	"injectors":
 	{
