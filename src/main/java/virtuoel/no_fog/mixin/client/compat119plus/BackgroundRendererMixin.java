@@ -11,6 +11,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.render.BackgroundRenderer;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.CameraSubmersionType;
+import net.minecraft.client.render.FogShape;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffects;
@@ -26,58 +27,52 @@ public abstract class BackgroundRendererMixin
 		final CameraSubmersionType cameraSubmersionType = camera.getSubmersionType();
 		final Entity entity = camera.getFocusedEntity();
 		
-		setFogDistance(fogType, thickFog, cameraSubmersionType, entity, true);
-		setFogDistance(fogType, thickFog, cameraSubmersionType, entity, false);
+		if (!NoFogClient.isToggleEnabled(getFogType(fogType, thickFog, cameraSubmersionType, entity), entity))
+		{
+			RenderSystem.setShaderFogStart(NoFogClient.FOG_START);
+			RenderSystem.setShaderFogEnd(NoFogClient.FOG_END);
+			RenderSystem.setShaderFogShape(FogShape.CYLINDER);
+		}
 	}
 	
 	@Unique
-	private static void setFogDistance(BackgroundRenderer.FogType fogType, boolean thickFog, CameraSubmersionType cameraSubmersionType, Entity entity, boolean start)
+	private static FogToggleType getFogType(BackgroundRenderer.FogType fogType, boolean thickFog, CameraSubmersionType cameraSubmersionType, Entity entity)
 	{
-		final FogToggleType type;
-		
 		if (cameraSubmersionType == CameraSubmersionType.LAVA)
 		{
-			type = FogToggleType.LAVA;
-		}
-		else if (cameraSubmersionType == CameraSubmersionType.POWDER_SNOW)
-		{
-			type = FogToggleType.POWDER_SNOW;
-		}
-		else if (entity instanceof LivingEntity && ((LivingEntity) entity).hasStatusEffect(StatusEffects.BLINDNESS))
-		{
-			type = FogToggleType.BLINDNESS;
-		}
-		else if (entity instanceof LivingEntity && ((LivingEntity) entity).hasStatusEffect(StatusEffects.DARKNESS))
-		{
-			type = FogToggleType.DARKNESS;
-		}
-		else if (cameraSubmersionType == CameraSubmersionType.WATER)
-		{
-			type = FogToggleType.WATER;
-		}
-		else if (thickFog)
-		{
-			type = FogToggleType.THICK;
-		}
-		else if (fogType == BackgroundRenderer.FogType.FOG_SKY)
-		{
-			type = FogToggleType.SKY;
-		}
-		else
-		{
-			type = FogToggleType.TERRAIN;
+			return FogToggleType.LAVA;
 		}
 		
-		if (NoFogClient.isToggleEnabled(type, entity))
+		if (cameraSubmersionType == CameraSubmersionType.POWDER_SNOW)
 		{
-			if (start)
-			{
-				RenderSystem.setShaderFogStart(NoFogClient.FOG_START);
-			}
-			else
-			{
-				RenderSystem.setShaderFogEnd(NoFogClient.FOG_END);
-			}
+			return FogToggleType.POWDER_SNOW;
 		}
+		
+		if (entity instanceof LivingEntity && ((LivingEntity) entity).hasStatusEffect(StatusEffects.BLINDNESS))
+		{
+			return FogToggleType.BLINDNESS;
+		}
+		
+		if (entity instanceof LivingEntity && ((LivingEntity) entity).hasStatusEffect(StatusEffects.DARKNESS))
+		{
+			return FogToggleType.DARKNESS;
+		}
+		
+		if (cameraSubmersionType == CameraSubmersionType.WATER)
+		{
+			return FogToggleType.WATER;
+		}
+		
+		if (thickFog)
+		{
+			return FogToggleType.THICK;
+		}
+		
+		if (fogType == BackgroundRenderer.FogType.FOG_SKY)
+		{
+			return FogToggleType.SKY;
+		}
+		
+		return FogToggleType.TERRAIN;
 	}
 }
