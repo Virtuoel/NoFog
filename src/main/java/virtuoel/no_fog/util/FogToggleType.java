@@ -27,7 +27,7 @@ public enum FogToggleType implements Function<FogToggles, TriState>
 		this.delegate = configFunc;
 		this.defaultToggle = defaultToggle;
 	}
-
+	
 	@Override
 	public TriState apply(FogToggles t)
 	{

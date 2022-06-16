@@ -242,7 +242,7 @@ public class AutoConfigUtils
 	
 	private static EnumListEntry<TriState> triStateEntry(String key, TriState value, Consumer<TriState> saveConsumer, Text... tooltip)
 	{
-		return ENTRY_BUILDER.startEnumSelector(I18nUtils.translate(key, key), TriState.class, value)
+		return ENTRY_BUILDER.startEnumSelector(I18nUtils.translate(key, key), TriState.class, value != null ? value : TriState.DEFAULT)
 			.setDefaultValue(TriState.DEFAULT)
 			.setSaveConsumer(saveConsumer)
 			.setTooltip(tooltip)

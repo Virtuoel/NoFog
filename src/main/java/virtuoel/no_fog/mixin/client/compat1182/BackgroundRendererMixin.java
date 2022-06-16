@@ -22,7 +22,7 @@ import virtuoel.no_fog.util.FogToggleType;
 @Mixin(value = BackgroundRenderer.class, priority = 910)
 public abstract class BackgroundRendererMixin
 {
-	@Inject(method = "applyFog", locals = LocalCapture.CAPTURE_FAILHARD, at = @At("RETURN"))
+	@Inject(method = "method_3211", locals = LocalCapture.CAPTURE_FAILHARD, at = @At("RETURN"), remap = false)
 	private static void applyFogModifyDistance(Camera camera, BackgroundRenderer.FogType fogType, float viewDistance, boolean thickFog, CallbackInfo info, CameraSubmersionType cameraSubmersionType, Entity entity, FogShape fogShape, float start, float end)
 	{
 		final float modifiedStart = getFogDistance(fogType, viewDistance, thickFog, cameraSubmersionType, entity, start, true);
