@@ -14,4 +14,5 @@ public class FogToggles
 	public TriState lavaFog = TriState.DEFAULT;
 	public TriState powderSnowFog = TriState.DEFAULT;
 	public TriState blindnessFog = TriState.DEFAULT;
+	public TriState darknessFog = TriState.DEFAULT;
 }

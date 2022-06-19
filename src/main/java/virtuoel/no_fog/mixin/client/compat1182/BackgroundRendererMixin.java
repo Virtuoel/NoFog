@@ -1,4 +1,4 @@
-package virtuoel.no_fog.mixin.client.compat1182plus;
+package virtuoel.no_fog.mixin.client.compat1182;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
