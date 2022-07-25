@@ -15,10 +15,10 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.fluid.FluidState;
-import net.minecraft.tag.FluidTags;
 import virtuoel.no_fog.NoFogClient;
 import virtuoel.no_fog.util.FogToggleType;
 import virtuoel.no_fog.util.ReflectionUtils;
+import virtuoel.no_fog.util.TagCompatibility;
 
 @Mixin(BackgroundRenderer.class)
 public abstract class BackgroundRendererMixin
@@ -27,8 +27,8 @@ public abstract class BackgroundRendererMixin
 	private static void applyFogModifyDensity(Camera camera, BackgroundRenderer.FogType fogType, float viewDistance, boolean thickFog, CallbackInfo info, FluidState fluidState, Entity entity, float density) throws Throwable
 	{
 		if (
-			(fluidState.isIn(FluidTags.WATER) && !NoFogClient.isToggleEnabled(FogToggleType.WATER, entity)) ||
-			(fluidState.isIn(FluidTags.LAVA) && !NoFogClient.isToggleEnabled(FogToggleType.LAVA, entity))
+			(TagCompatibility.isIn(fluidState, TagCompatibility.FluidTags.WATER) && !NoFogClient.isToggleEnabled(FogToggleType.WATER, entity)) ||
+			(TagCompatibility.isIn(fluidState, TagCompatibility.FluidTags.LAVA) && !NoFogClient.isToggleEnabled(FogToggleType.LAVA, entity))
 		)
 		{
 			ReflectionUtils.setFogDensity(0);

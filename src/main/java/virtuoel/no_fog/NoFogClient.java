@@ -17,6 +17,7 @@ import virtuoel.no_fog.util.FogToggleType;
 import virtuoel.no_fog.util.FogToggles;
 import virtuoel.no_fog.util.ModLoaderUtils;
 import virtuoel.no_fog.util.ReflectionUtils;
+import virtuoel.no_fog.util.TagCompatibility;
 
 public class NoFogClient implements ClientModInitializer
 {
@@ -43,7 +44,7 @@ public class NoFogClient implements ClientModInitializer
 			AutoConfigUtils.initialize();
 		}
 		
-		ReflectionUtils.init();
+		TagCompatibility.FluidTags.WATER.getClass();
 	}
 	
 	public static final float FOG_START = -8.0F;
