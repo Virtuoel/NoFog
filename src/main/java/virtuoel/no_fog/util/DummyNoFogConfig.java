@@ -16,13 +16,13 @@ public class DummyNoFogConfig implements NoFogConfig
 	{
 		return biomeToggles;
 	}
-
+	
 	@Override
 	public Map<String, FogToggles> getDimensionToggles()
 	{
 		return dimensionToggles;
 	}
-
+	
 	@Override
 	public FogToggles getGlobalToggles()
 	{
