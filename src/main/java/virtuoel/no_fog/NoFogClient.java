@@ -38,7 +38,7 @@ public class NoFogClient
 			AutoConfigUtils.initialize();
 		}
 		
-		ReflectionUtils.init();
+		ReflectionUtils.INSTANCE.getClass();
 	}
 	
 	public static final float FOG_START = -8.0F;

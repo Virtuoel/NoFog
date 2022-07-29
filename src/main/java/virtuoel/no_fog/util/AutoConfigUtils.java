@@ -20,9 +20,7 @@ import me.shedaniel.clothconfig2.api.ConfigEntryBuilder;
 import me.shedaniel.clothconfig2.gui.entries.EnumListEntry;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.resource.language.I18n;
-import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
 import net.minecraft.util.registry.BuiltinRegistries;
@@ -63,7 +61,7 @@ public class AutoConfigUtils
 			
 			entries.add(ENTRY_BUILDER
 				.startSubCategory(
-					new TranslatableText("text.no_fog.config.category.global"),
+					I18nUtils.translate("text.no_fog.config.category.global", "Global settings"),
 					addToggleEntries((FogToggles) field.get(config))
 				).build()
 			);
@@ -98,7 +96,7 @@ public class AutoConfigUtils
 			
 			dimensionEntries.add(ENTRY_BUILDER
 				.startSubCategory(
-					new LiteralText(id),
+					I18nUtils.literal(id),
 					addToggleEntries(data.get(id))
 				).build()
 			);
@@ -106,7 +104,7 @@ public class AutoConfigUtils
 		
 		entries.add(ENTRY_BUILDER
 			.startSubCategory(
-				new TranslatableText("text.no_fog.config.category.dimensions"),
+				I18nUtils.translate("text.no_fog.config.category.dimensions", "Dimension Type settings"),
 				dimensionEntries
 			).build()
 		);
@@ -139,17 +137,17 @@ public class AutoConfigUtils
 			
 			biomeEntries.add(ENTRY_BUILDER
 				.startSubCategory(
-					new TranslatableText(Util.createTranslationKey("biome", id)),
+					I18nUtils.translate(Util.createTranslationKey("biome", id), Util.createTranslationKey("biome", id)),
 					addToggleEntries(data.get(idStr))
 				)
-				.setTooltip(new LiteralText(idStr))
+				.setTooltip(I18nUtils.literal(idStr))
 				.build()
 			);
 		}
 		
 		entries.add(ENTRY_BUILDER
 			.startSubCategory(
-				new TranslatableText("text.no_fog.config.category.biomes"),
+				I18nUtils.translate("text.no_fog.config.category.biomes", "Biome settings"),
 				biomeEntries
 			)
 			.build()
@@ -163,40 +161,45 @@ public class AutoConfigUtils
 	{
 		List<AbstractConfigListEntry> entries = new LinkedList<>();
 		
+		final String enabledKey = "text.no_fog.config.default.enabled";
+		final String enabledDefault = "Default: enabled";
+		final String disabledKey = "text.no_fog.config.default.disabled";
+		final String disabledDefault = "Default: disabled";
+		
 		entries.add(triStateEntry(
 			"text.no_fog.config.sky_fog",
 			data.skyFog,
 			newValue -> data.skyFog = newValue,
-			new TranslatableText("text.no_fog.config.default.enabled")
+			I18nUtils.translate(enabledKey, enabledDefault)
 		));
 		
 		entries.add(triStateEntry(
 			"text.no_fog.config.terrain_fog",
 			data.terrainFog,
 			newValue -> data.terrainFog = newValue,
-			new TranslatableText("text.no_fog.config.default.disabled")
+			I18nUtils.translate(disabledKey, disabledDefault)
 		));
 		
 		entries.add(triStateEntry(
 			"text.no_fog.config.thick_fog",
 			data.thickFog,
 			newValue -> data.thickFog = newValue,
-			new TranslatableText("text.no_fog.config.thick_fog.tooltip"),
-			new TranslatableText("text.no_fog.config.default.disabled")
+			I18nUtils.translate("text.no_fog.config.thick_fog.tooltip", "Enable thick fog"),
+			I18nUtils.translate(disabledKey, disabledDefault)
 		));
 		
 		entries.add(triStateEntry(
 			"text.no_fog.config.water_fog",
 			data.waterFog,
 			newValue -> data.waterFog = newValue,
-			new TranslatableText("text.no_fog.config.default.disabled")
+			I18nUtils.translate(disabledKey, disabledDefault)
 		));
 		
 		entries.add(triStateEntry(
 			"text.no_fog.config.lava_fog",
 			data.lavaFog,
 			newValue -> data.lavaFog = newValue,
-			new TranslatableText("text.no_fog.config.default.disabled")
+			I18nUtils.translate(disabledKey, disabledDefault)
 		));
 		
 		if (VersionUtils.MINOR >= 17)
@@ -205,7 +208,7 @@ public class AutoConfigUtils
 				"text.no_fog.config.powder_snow_fog",
 				data.powderSnowFog,
 				newValue -> data.powderSnowFog = newValue,
-				new TranslatableText("text.no_fog.config.default.disabled")
+				I18nUtils.translate(disabledKey, disabledDefault)
 			));
 		}
 		
@@ -213,15 +216,25 @@ public class AutoConfigUtils
 			"text.no_fog.config.blindness_fog",
 			data.blindnessFog,
 			newValue -> data.blindnessFog = newValue,
-			new TranslatableText("text.no_fog.config.default.enabled")
+			I18nUtils.translate(enabledKey, enabledDefault)
 		));
+		
+		if (VersionUtils.MINOR >= 19)
+		{
+			entries.add(triStateEntry(
+				"text.no_fog.config.darkness_fog",
+				data.darknessFog,
+				newValue -> data.darknessFog = newValue,
+				I18nUtils.translate(enabledKey, enabledDefault)
+			));
+		}
 		
 		return entries;
 	}
 	
 	private static EnumListEntry<TriState> triStateEntry(String key, TriState value, Consumer<TriState> saveConsumer, Text... tooltip)
 	{
-		return ENTRY_BUILDER.startEnumSelector(new TranslatableText(key), TriState.class, value)
+		return ENTRY_BUILDER.startEnumSelector(I18nUtils.translate(key, key), TriState.class, value != null ? value : TriState.DEFAULT)
 			.setDefaultValue(TriState.DEFAULT)
 			.setSaveConsumer(saveConsumer)
 			.setTooltip(tooltip)
