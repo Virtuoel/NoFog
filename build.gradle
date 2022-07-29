@@ -1,9 +1,9 @@
 plugins {
-	id "dev.architectury.loom" version "0.11.+"
+	id "dev.architectury.loom" version "0.12.+"
 	id "eclipse"
 	id "maven-publish"
 	id "com.github.breadmoirai.github-release" version "2.2.12"
-	id "io.github.juuxel.loom-quiltflower" version "1.6.0"
+	id "io.github.juuxel.loom-quiltflower" version "1.7.3"
 	id "com.matthewprenger.cursegradle" version "1.4.0"
 	id "com.modrinth.minotaur" version "2.+"
 }
@@ -43,6 +43,8 @@ sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
 
 def ENV = System.getenv()
+
+TimeZone.setDefault(TimeZone.getTimeZone("UTC"))
 
 group = project.maven_group
 archivesBaseName = project.archives_base_name
@@ -89,7 +91,16 @@ if(project.hasProperty("fabric_version")) {
 
 dependencies {
 	minecraft "com.mojang:minecraft:${minecraft_version}"
-	mappings "net.fabricmc:yarn:${yarn_mappings}:v2"
+	if(!project.yarn_mappings.contains(", ")) {
+		mappings "net.fabricmc:yarn:${yarn_mappings}:v2"
+	}
+	else {
+		mappings loom.layered {
+			project.yarn_mappings.split(", ").each { String mapping ->
+				mappings "net.fabricmc:yarn:${mapping}:v2"
+			}
+		}
+	}
 	
 	if(project.hasProperty("forge_version")) {
 		forge "net.minecraftforge:forge:${forge_version}"
@@ -156,6 +167,10 @@ processResources {
 	
 	filesMatching("fabric.mod.json") {
 		expand "version": project.version
+	}
+	
+	filesMatching("META-INF/mods.toml") {
+		expand "file": [ jarVersion: project.version ]
 	}
 }
 
@@ -226,13 +241,13 @@ publishing {
 	
 	repositories {
 		mavenLocal()
-		if(project.hasProperty("github_maven_owner")) {
+		if(project.hasProperty("maven_repo") && project.hasProperty("maven_username") && project.hasProperty("maven_password")) {
 			maven {
-				url = "https://maven.pkg.github.com/${github_maven_owner}"
+				url = project.maven_repo
 				
 				credentials {
-					username project.properties.github_username
-					password project.properties.github_packages_token
+					username project.maven_username
+					password project.maven_password
 				}
 			}
 		}
@@ -254,7 +269,7 @@ githubRelease {
 		tagName "${project.mod_version}-${project.minecraft_version}-forge"
 	}
 	
-	if(project.hasProperty("loader_version")) {
+	if(project.hasProperty("fabric_loader_version")) {
 		tagName project.mod_version
 	}
 	
@@ -492,6 +507,10 @@ modrinth {
 		changelog = generateMarkdownChangelog()
 		
 		uploadFile = remapJar
-		additionalFiles = files("${project.buildDir}/libs/${archivesBaseName}-${version}-sources.jar").files
 	}
+}
+
+tasks.named("modrinth") {
+	dependsOn remapJar
+	dependsOn remapSourcesJar
 }

@@ -87,7 +87,9 @@ public class ReflectionUtils
 		}
 	}
 	
-	public static void init()
+	public static final ReflectionUtils INSTANCE = new ReflectionUtils();
+	
+	private ReflectionUtils()
 	{
 		
 	}
