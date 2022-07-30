@@ -1,6 +1,7 @@
 package virtuoel.no_fog.util;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -30,7 +31,6 @@ import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.dimension.DimensionType;
-import net.minecraftforge.client.ConfigScreenHandler;
 import net.minecraftforge.fml.ModLoadingContext;
 import virtuoel.no_fog.api.NoFogConfig;
 
@@ -39,16 +39,56 @@ public class AutoConfigUtils
 	public static void initialize()
 	{
 		AutoConfig.register(NoFogConfigImpl.class, GsonConfigSerializer::new);
-		GuiRegistry registry = AutoConfig.getGuiRegistry(NoFogConfigImpl.class);
+		final GuiRegistry registry = AutoConfig.getGuiRegistry(NoFogConfigImpl.class);
 		registry.registerPredicateProvider(AutoConfigUtils::globalToggleEntry, f -> f.getName().equals("globalToggles"));
 		registry.registerPredicateProvider(AutoConfigUtils::dimensionToggleMapEntries, f -> f.getName().equals("dimensionToggles"));
 		registry.registerPredicateProvider(AutoConfigUtils::biomeToggleMapEntries, f -> f.getName().equals("biomeToggles"));
 		
-		BiFunction<MinecraftClient, Screen, Screen> screenFunction = (mc, screen) -> AutoConfig.getConfigScreen(NoFogConfigImpl.class, screen).get();
-		ModLoadingContext.get().registerExtensionPoint(
-			ConfigScreenHandler.ConfigScreenFactory.class,
-			() -> new ConfigScreenHandler.ConfigScreenFactory(screenFunction)
-		);
+		registerConfigScreenFactoryExtensionPoint();
+	}
+	
+	private static void registerConfigScreenFactoryExtensionPoint()
+	{
+		final BiFunction<MinecraftClient, Screen, Screen> screenFunction = (mc, screen) -> AutoConfig.getConfigScreen(NoFogConfigImpl.class, screen).get();
+		
+		Class<?> clazz, c;
+		try
+		{
+			c = Class.forName("net.minecraftforge.client.ConfigScreenHandler$ConfigScreenFactory");
+		}
+		catch (ClassNotFoundException e)
+		{
+			try
+			{
+				c = Class.forName("net.minecraftforge.client.ConfigGuiHandler$ConfigGuiFactory");
+			}
+			catch (ClassNotFoundException e1)
+			{
+				e1.printStackTrace();
+				return;
+			}
+		}
+		clazz = c;
+		
+		try
+		{
+			ModLoadingContext.class.getMethod("registerExtensionPoint", Class.class, Supplier.class).invoke(ModLoadingContext.get(), clazz, (Supplier<?>) () ->
+			{
+				try
+				{
+					return clazz.cast(clazz.getConstructor(BiFunction.class).newInstance(screenFunction));
+				}
+				catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e)
+				{
+					e.printStackTrace();
+					return null;
+				}
+			});
+		}
+		catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e)
+		{
+			e.printStackTrace();
+		}
 	}
 	
 	public static final Supplier<NoFogConfig> CONFIG = () -> AutoConfig.getConfigHolder(NoFogConfigImpl.class).getConfig();
