@@ -5,23 +5,38 @@ import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodHandles.Lookup;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.Set;
 import java.util.function.Supplier;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import net.minecraft.entity.Entity;
+import net.minecraft.fluid.Fluid;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.registry.BuiltinRegistries;
+import net.minecraft.util.registry.Registry;
+import net.minecraft.util.registry.RegistryKey;
+import net.minecraft.world.RegistryWorldView;
+import net.minecraft.world.biome.Biome;
+import net.minecraft.world.dimension.DimensionType;
 import virtuoel.no_fog.NoFogClient;
 
 public class ReflectionUtils
 {
 	public static final MethodHandle FOG_DENSITY, FOG_START, FOG_END;
+	public static final RegistryKey<Registry<Fluid>> FLUID_KEY;
+	public static final RegistryKey<Registry<Biome>> BIOME_KEY;
+	public static final RegistryKey<Registry<DimensionType>> DIMENSION_TYPE_KEY;
+	public static final Registry<Biome> BUILTIN_BIOME_REGISTRY;
 	
 	static
 	{
 		final Int2ObjectMap<MethodHandle> h = new Int2ObjectArrayMap<MethodHandle>();
 		
 		final Lookup lookup = MethodHandles.lookup();
-		Class<?> clazz;
 		String mapped = "unset";
+		Class<?> clazz;
 		Method m;
 		
 		try
@@ -41,13 +56,38 @@ public class ReflectionUtils
 		}
 		catch (NoSuchMethodException | SecurityException | ClassNotFoundException | IllegalAccessException e1)
 		{
-			NoFogClient.LOGGER.error("Last method lookup: {}", mapped);
+			NoFogClient.LOGGER.error("Current name lookup: {}", mapped);
 			NoFogClient.LOGGER.catching(e1);
 		}
 		
 		FOG_DENSITY = h.get(0);
 		FOG_START = h.get(1);
 		FOG_END = h.get(2);
+		FLUID_KEY = Registry.FLUID_KEY;
+		BIOME_KEY = Registry.BIOME_KEY;
+		DIMENSION_TYPE_KEY = Registry.DIMENSION_TYPE_KEY;
+		BUILTIN_BIOME_REGISTRY = BuiltinRegistries.BIOME;
+	}
+	
+	public static <E> Registry<E> getDynamicRegistry(RegistryWorldView w, RegistryKey<? extends Registry<E>> key)
+	{
+		return w.getRegistryManager().get(key);
+	}
+	
+	public static String getBiomeId(Entity entity)
+	{
+		final Biome biome = entity.world.getBiome(new BlockPos(entity.getPos()));
+		return getId(getDynamicRegistry(entity.world, BIOME_KEY), biome).toString();
+	}
+	
+	public static Set<Identifier> getIds(Registry<?> registry)
+	{
+		return registry.getIds();
+	}
+	
+	public static <V> Identifier getId(Registry<V> registry, V entry)
+	{
+		return registry.getId(entry);
 	}
 	
 	public static void setFogDensity(float f) throws Throwable
