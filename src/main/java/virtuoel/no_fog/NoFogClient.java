@@ -7,8 +7,6 @@ import org.apache.logging.log4j.Logger;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.registry.Registry;
 import net.minecraftforge.fml.common.Mod;
 import virtuoel.no_fog.api.NoFogConfig;
 import virtuoel.no_fog.util.AutoConfigUtils;
@@ -57,7 +55,7 @@ public class NoFogClient
 		final FogToggles globalToggles = config.getGlobalToggles();
 		final FogToggles dimensionToggles = config.getDimensionToggles().computeIfAbsent(dimension, FogToggles::new);
 		
-		final String biomeId = entity.world.getRegistryManager().get(Registry.BIOME_KEY).getId(entity.world.getBiome(new BlockPos(entity.getPos())).value()).toString();
+		final String biomeId = ReflectionUtils.getBiomeId(entity);
 		
 		final FogToggles biomeToggles = config.getBiomeToggles().computeIfAbsent(biomeId, FogToggles::new);
 		
