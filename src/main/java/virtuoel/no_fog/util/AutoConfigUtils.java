@@ -2,14 +2,19 @@ package virtuoel.no_fog.util;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+
+import org.apache.commons.lang3.tuple.Triple;
 
 import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.gui.registry.GuiRegistry;
@@ -20,14 +25,15 @@ import me.shedaniel.clothconfig2.api.ConfigEntryBuilder;
 import me.shedaniel.clothconfig2.gui.entries.EnumListEntry;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.resource.language.I18n;
+import net.minecraft.registry.BuiltinRegistries;
+import net.minecraft.registry.Registry;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
-import net.minecraft.util.registry.BuiltinRegistries;
-import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
-import net.minecraft.world.dimension.DimensionType;
 import virtuoel.no_fog.NoFogClient;
 import virtuoel.no_fog.api.NoFogConfig;
 
@@ -56,7 +62,7 @@ public class AutoConfigUtils
 			entries.add(ENTRY_BUILDER
 				.startSubCategory(
 					I18nUtils.translate("text.no_fog.config.category.global", "Global settings"),
-					addToggleEntries((FogToggles) field.get(config))
+					addToggleEntries((FogToggles) field.get(config), Collections.emptyList())
 				).build()
 			);
 			
@@ -68,28 +74,61 @@ public class AutoConfigUtils
 		}
 	}
 	
+	private static Object dimensionTypeRegistryWrapper = null;
+	
 	@SuppressWarnings("rawtypes")
-	private static List<AbstractConfigListEntry> dimensionToggleMapEntries(String i13n, Field field, Object config, Object defaults, GuiRegistryAccess registry)
+	private static List<AbstractConfigListEntry> dimensionToggleMapEntries(String i13n, Field field, Object config, Object defaults, GuiRegistryAccess registryAccess)
 	{
 		final Map<String, FogToggles> data = ReflectionUtils.getFieldValue(field, config, HashMap::new);
 		
 		final List<AbstractConfigListEntry> entries = new LinkedList<>();
 		final List<AbstractConfigListEntry> dimensionEntries = new LinkedList<>();
 		
+		final Set<String> idSet = new HashSet<>();
+		
 		final MinecraftClient client = MinecraftClient.getInstance();
-		List<String> ids = Arrays.asList(World.OVERWORLD.getValue().toString(), World.NETHER.getValue().toString(), World.END.getValue().toString());
 		if (client != null && client.world != null)
 		{
 			try
 			{
-				Registry<DimensionType> dimensionRegistry = ReflectionUtils.getDynamicRegistry(client.world, Registry.DIMENSION_TYPE_KEY);
-				ids = dimensionRegistry.getIds().stream().map(Identifier::toString).collect(Collectors.toList());
+				final Registry<?> registry = ReflectionUtils.getDynamicRegistry(client.world, ReflectionUtils.DIMENSION_TYPE_KEY);
+				ReflectionUtils.getIds(registry).stream().map(Identifier::toString).forEach(idSet::add);
 			}
 			catch (Throwable e)
 			{
 				NoFogClient.LOGGER.catching(e);
 			}
 		}
+		
+		if (idSet.isEmpty())
+		{
+			if (VersionUtils.MINOR < 19 || (VersionUtils.MINOR == 19 && VersionUtils.PATCH <= 2))
+			{
+				idSet.add(World.OVERWORLD.getValue().toString());
+				idSet.add(World.NETHER.getValue().toString());
+				idSet.add(World.END.getValue().toString());
+			}
+			else
+			{
+				try
+				{
+					if (dimensionTypeRegistryWrapper == null)
+					{
+						dimensionTypeRegistryWrapper = BuiltinRegistries.createWrapperLookup().getWrapperOrThrow(ReflectionUtils.DIMENSION_TYPE_KEY);
+					}
+					
+					((RegistryWrapper<?>) dimensionTypeRegistryWrapper).streamKeys().map(RegistryKey::getValue).map(Identifier::toString).forEach(idSet::add);
+				}
+				catch (Throwable e)
+				{
+					NoFogClient.LOGGER.catching(e);
+				}
+			}
+		}
+		
+		data.keySet().forEach(idSet::add);
+		
+		final List<String> ids = idSet.stream().sorted((l, r) -> l.compareTo(r)).collect(Collectors.toList());
 		
 		for (final String id : ids)
 		{
@@ -98,7 +137,7 @@ public class AutoConfigUtils
 			dimensionEntries.add(ENTRY_BUILDER
 				.startSubCategory(
 					I18nUtils.literal(id),
-					addToggleEntries(data.get(id))
+					addToggleEntries(data.get(id), Collections.singletonList(id))
 				).build()
 			);
 		}
@@ -113,59 +152,94 @@ public class AutoConfigUtils
 		return entries;
 	}
 	
+	private static Object biomeRegistryWrapper = null;
+	
 	@SuppressWarnings("rawtypes")
-	private static List<AbstractConfigListEntry> biomeToggleMapEntries(String i13n, Field field, Object config, Object defaults, GuiRegistryAccess registry)
+	private static List<AbstractConfigListEntry> biomeToggleMapEntries(String i13n, Field field, Object config, Object defaults, GuiRegistryAccess registryAccess)
 	{
 		final Map<String, FogToggles> data = ReflectionUtils.getFieldValue(field, config, HashMap::new);
 		
 		final List<AbstractConfigListEntry> entries = new LinkedList<>();
 		final List<AbstractConfigListEntry> biomeEntries = new LinkedList<>();
 		
-		final MinecraftClient client = MinecraftClient.getInstance();
-		Registry<Biome> biomeRegistry = BuiltinRegistries.BIOME;
-		if (client != null && client.world != null)
+		final Set<Identifier> idSet = new HashSet<>();
+		
+		try
+		{
+			final MinecraftClient client = MinecraftClient.getInstance();
+			if (client != null && client.world != null)
+			{
+				final Registry<Biome> registry = ReflectionUtils.getDynamicRegistry(client.world, ReflectionUtils.BIOME_KEY);
+				idSet.addAll(ReflectionUtils.getIds(registry).stream().collect(Collectors.toList()));
+			}
+			else if (ReflectionUtils.BUILTIN_BIOME_REGISTRY != null)
+			{
+				idSet.addAll(ReflectionUtils.getIds(ReflectionUtils.BUILTIN_BIOME_REGISTRY));
+			}
+		}
+		catch (Throwable e)
+		{
+			NoFogClient.LOGGER.catching(e);
+		}
+		
+		if (idSet.isEmpty())
 		{
 			try
 			{
-				biomeRegistry = ReflectionUtils.getDynamicRegistry(client.world, Registry.BIOME_KEY);
+				if (biomeRegistryWrapper == null)
+				{
+					biomeRegistryWrapper = BuiltinRegistries.createWrapperLookup().getWrapperOrThrow(ReflectionUtils.BIOME_KEY);
+				}
+				
+				idSet.addAll(((RegistryWrapper<?>) biomeRegistryWrapper).streamKeys().map(RegistryKey::getValue).collect(Collectors.toList()));
 			}
 			catch (Throwable e)
 			{
-				
+				NoFogClient.LOGGER.catching(e);
 			}
 		}
 		
-		final List<Identifier> ids = biomeRegistry.getIds().stream().collect(Collectors.toList());
-		Collections.sort(ids, (l, r) -> I18n.translate(Util.createTranslationKey("biome", l)).compareTo(I18n.translate(Util.createTranslationKey("biome", r))));
+		data.keySet().stream().map(Identifier::new).forEach(idSet::add);
 		
-		for (final Identifier id : ids)
+		final List<Triple<String, String, String>> idData = idSet.stream().map(i -> Triple.of(i.toString(), Util.createTranslationKey("biome", i), I18n.translate(Util.createTranslationKey("biome", i)))).collect(Collectors.toList());
+		
+		Collections.sort(idData, (l, r) -> l.getRight().compareTo(r.getRight()));
+		
+		String idStr, translationKey;
+		for (final Triple<String, String, String> id : idData)
 		{
-			final String idStr = id.toString();
+			idStr = id.getLeft();
+			translationKey = id.getMiddle();
 			data.computeIfAbsent(idStr, FogToggles::new);
 			
 			biomeEntries.add(ENTRY_BUILDER
 				.startSubCategory(
-					I18nUtils.translate(Util.createTranslationKey("biome", id), Util.createTranslationKey("biome", id)),
-					addToggleEntries(data.get(idStr))
+					I18nUtils.translate(translationKey, idStr),
+					addToggleEntries(data.get(idStr), Arrays.asList(idStr, translationKey, id.getRight()))
 				)
 				.setTooltip(I18nUtils.literal(idStr))
 				.build()
 			);
 		}
 		
-		entries.add(ENTRY_BUILDER
-			.startSubCategory(
-				I18nUtils.translate("text.no_fog.config.category.biomes", "Biome settings"),
-				biomeEntries
-			)
-			.build()
-		);
+		if (!biomeEntries.isEmpty())
+		{
+			entries.add(ENTRY_BUILDER
+				.startSubCategory(
+					I18nUtils.translate("text.no_fog.config.category.biomes", "Biome settings"),
+					biomeEntries
+				)
+				.build()
+			);
+		}
 		
 		return entries;
 	}
 	
+	private static boolean tagsFailed = false;
+	
 	@SuppressWarnings("rawtypes")
-	private static List<AbstractConfigListEntry> addToggleEntries(final FogToggles data)
+	private static List<AbstractConfigListEntry> addToggleEntries(final FogToggles data, final Collection<String> tags)
 	{
 		List<AbstractConfigListEntry> entries = new LinkedList<>();
 		
@@ -235,6 +309,22 @@ public class AutoConfigUtils
 				newValue -> data.darknessFog = newValue,
 				I18nUtils.translate(enabledKey, enabledDefault)
 			));
+		}
+		
+		if (!tagsFailed && tags != null && !tags.isEmpty())
+		{
+			try
+			{
+				for (final AbstractConfigListEntry<?> entry : entries)
+				{
+					entry.appendSearchTags(tags);
+				}
+			}
+			catch (Throwable e)
+			{
+				tagsFailed = true;
+			}
+			
 		}
 		
 		return entries;

@@ -8,8 +8,6 @@ import org.apache.logging.log4j.Logger;
 import net.fabricmc.api.ClientModInitializer;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.world.biome.Biome;
 import virtuoel.no_fog.api.NoFogConfig;
 import virtuoel.no_fog.util.AutoConfigUtils;
 import virtuoel.no_fog.util.DummyNoFogConfig;
@@ -68,8 +66,7 @@ public class NoFogClient implements ClientModInitializer
 		final String biomeId;
 		try
 		{
-			final Biome biome = ReflectionUtils.getBiome(entity);
-			biomeId = ReflectionUtils.getDynamicRegistry(entity.world, Registry.BIOME_KEY).getId(biome).toString();
+			biomeId = ReflectionUtils.getBiomeId(entity);
 		}
 		catch (Throwable e)
 		{
