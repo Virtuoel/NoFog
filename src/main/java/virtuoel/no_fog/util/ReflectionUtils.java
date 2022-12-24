@@ -12,11 +12,11 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import net.minecraft.entity.Entity;
 import net.minecraft.fluid.Fluid;
+import net.minecraft.registry.Registry;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.registry.BuiltinRegistries;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.RegistryWorldView;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.dimension.DimensionType;
@@ -63,10 +63,10 @@ public class ReflectionUtils
 		FOG_DENSITY = h.get(0);
 		FOG_START = h.get(1);
 		FOG_END = h.get(2);
-		FLUID_KEY = Registry.FLUID_KEY;
-		BIOME_KEY = Registry.BIOME_KEY;
-		DIMENSION_TYPE_KEY = Registry.DIMENSION_TYPE_KEY;
-		BUILTIN_BIOME_REGISTRY = BuiltinRegistries.BIOME;
+		FLUID_KEY = RegistryKeys.FLUID;
+		BIOME_KEY = RegistryKeys.BIOME;
+		DIMENSION_TYPE_KEY = RegistryKeys.DIMENSION_TYPE;
+		BUILTIN_BIOME_REGISTRY = null;
 	}
 	
 	public static <E> Registry<E> getDynamicRegistry(RegistryWorldView w, RegistryKey<? extends Registry<E>> key)

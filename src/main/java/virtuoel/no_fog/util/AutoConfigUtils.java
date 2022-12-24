@@ -10,8 +10,8 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.function.BiFunction;
 import java.util.Set;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -28,10 +28,13 @@ import me.shedaniel.clothconfig2.gui.entries.EnumListEntry;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.resource.language.I18n;
+import net.minecraft.registry.BuiltinRegistries;
+import net.minecraft.registry.Registry;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
-import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraftforge.fml.ModLoadingContext;
@@ -149,14 +152,12 @@ public class AutoConfigUtils
 			}
 			else
 			{
-				/* // TODO 1.19.3
 				if (dimensionTypeRegistryWrapper == null)
 				{
 					dimensionTypeRegistryWrapper = BuiltinRegistries.createWrapperLookup().getWrapperOrThrow(ReflectionUtils.DIMENSION_TYPE_KEY);
 				}
 				
 				((RegistryWrapper<?>) dimensionTypeRegistryWrapper).streamKeys().map(RegistryKey::getValue).map(Identifier::toString).forEach(idSet::add);
-				 */
 			}
 		}
 		
@@ -211,14 +212,12 @@ public class AutoConfigUtils
 		
 		if (idSet.isEmpty())
 		{
-			/* // TODO 1.19.3
 			if (biomeRegistryWrapper == null)
 			{
 				biomeRegistryWrapper = BuiltinRegistries.createWrapperLookup().getWrapperOrThrow(ReflectionUtils.BIOME_KEY);
 			}
 			
 			idSet.addAll(((RegistryWrapper<?>) biomeRegistryWrapper).streamKeys().map(RegistryKey::getValue).collect(Collectors.toList()));
-			*/
 		}
 		
 		data.keySet().stream().map(Identifier::new).forEach(idSet::add);
