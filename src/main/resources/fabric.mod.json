@@ -3,7 +3,7 @@
 	"id": "no_fog",
 	"name": "No Fog (Forge Version)",
 	"version": "0.0.0+forge",
-	"description": "Forge version of No Fog, but you are playing on a Fabric instance! Did you download the wrong mod .jar?",
+	"description": "Forge version of No Fog, but you are playing on a Fabric/Quilt instance! Did you download the wrong mod .jar?",
 	"authors":
 	[
 		"Virtuoel"
