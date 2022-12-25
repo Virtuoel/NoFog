@@ -5,11 +5,9 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -23,14 +21,10 @@ import me.shedaniel.autoconfig.serializer.GsonConfigSerializer;
 import me.shedaniel.clothconfig2.api.AbstractConfigListEntry;
 import me.shedaniel.clothconfig2.api.ConfigEntryBuilder;
 import me.shedaniel.clothconfig2.gui.entries.EnumListEntry;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.resource.language.I18n;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.world.World;
-import net.minecraft.world.biome.Biome;
 import net.minecraftforge.client.ConfigGuiHandler;
 import net.minecraftforge.fml.ModLoadingContext;
 import virtuoel.no_fog.api.NoFogConfig;
@@ -58,26 +52,17 @@ public class AutoConfigUtils
 	@SuppressWarnings("rawtypes")
 	private static List<AbstractConfigListEntry> globalToggleEntry(String i13n, Field field, Object config, Object defaults, GuiRegistryAccess registry)
 	{
-		try
-		{
-			final List<AbstractConfigListEntry> entries = new LinkedList<>();
-			
-			entries.add(ENTRY_BUILDER
-				.startSubCategory(
-					I18nUtils.translate("text.no_fog.config.category.global", "Global settings"),
-					addToggleEntries((FogToggles) field.get(config), Collections.emptyList())
-				).build()
-			);
-			
-			return entries;
-		}
-		catch (IllegalArgumentException | IllegalAccessException e)
-		{
-			return new LinkedList<>();
-		}
+		final List<AbstractConfigListEntry> entries = new LinkedList<>();
+		
+		entries.add(ENTRY_BUILDER
+			.startSubCategory(
+				I18nUtils.translate("text.no_fog.config.category.global", "Global settings"),
+				addToggleEntries(ReflectionUtils.getFieldValue(field, config, FogToggles::new), Collections.emptyList())
+			).build()
+		);
+		
+		return entries;
 	}
-	
-	private static Object dimensionTypeRegistryWrapper = null;
 	
 	@SuppressWarnings("rawtypes")
 	private static List<AbstractConfigListEntry> dimensionToggleMapEntries(String i13n, Field field, Object config, Object defaults, GuiRegistryAccess registryAccess)
@@ -87,44 +72,12 @@ public class AutoConfigUtils
 		final List<AbstractConfigListEntry> entries = new LinkedList<>();
 		final List<AbstractConfigListEntry> dimensionEntries = new LinkedList<>();
 		
-		final Set<String> idSet = new HashSet<>();
+		ConfigUtils.populateDimensionToggles(data);
 		
-		final MinecraftClient client = MinecraftClient.getInstance();
-		if (client != null && client.world != null)
-		{
-			final Registry<?> registry = ReflectionUtils.getDynamicRegistry(client.world, ReflectionUtils.DIMENSION_TYPE_KEY);
-			ReflectionUtils.getIds(registry).stream().map(Identifier::toString).forEach(idSet::add);
-		}
-		
-		if (idSet.isEmpty())
-		{
-			if (VersionUtils.MINOR < 19 || (VersionUtils.MINOR == 19 && VersionUtils.PATCH <= 2))
-			{
-				idSet.add(World.OVERWORLD.getValue().toString());
-				idSet.add(World.NETHER.getValue().toString());
-				idSet.add(World.END.getValue().toString());
-			}
-			else
-			{
-				/* // TODO 1.19.3
-				if (dimensionTypeRegistryWrapper == null)
-				{
-					dimensionTypeRegistryWrapper = BuiltinRegistries.createWrapperLookup().getWrapperOrThrow(ReflectionUtils.DIMENSION_TYPE_KEY);
-				}
-				
-				((RegistryWrapper<?>) dimensionTypeRegistryWrapper).streamKeys().map(RegistryKey::getValue).map(Identifier::toString).forEach(idSet::add);
-				 */
-			}
-		}
-		
-		data.keySet().forEach(idSet::add);
-		
-		final List<String> ids = idSet.stream().sorted((l, r) -> l.compareTo(r)).collect(Collectors.toList());
+		final List<String> ids = data.keySet().stream().sorted((l, r) -> l.compareTo(r)).collect(Collectors.toList());
 		
 		for (final String id : ids)
 		{
-			data.computeIfAbsent(id, FogToggles::new);
-			
 			dimensionEntries.add(ENTRY_BUILDER
 				.startSubCategory(
 					I18nUtils.literal(id),
@@ -143,8 +96,6 @@ public class AutoConfigUtils
 		return entries;
 	}
 	
-	private static Object biomeRegistryWrapper = null;
-	
 	@SuppressWarnings("rawtypes")
 	private static List<AbstractConfigListEntry> biomeToggleMapEntries(String i13n, Field field, Object config, Object defaults, GuiRegistryAccess registryAccess)
 	{
@@ -153,43 +104,22 @@ public class AutoConfigUtils
 		final List<AbstractConfigListEntry> entries = new LinkedList<>();
 		final List<AbstractConfigListEntry> biomeEntries = new LinkedList<>();
 		
-		final Set<Identifier> idSet = new HashSet<>();
+		ConfigUtils.populateBiomeToggles(data);
 		
-		final MinecraftClient client = MinecraftClient.getInstance();
-		if (client != null && client.world != null)
-		{
-			final Registry<Biome> registry = ReflectionUtils.getDynamicRegistry(client.world, ReflectionUtils.BIOME_KEY);
-			idSet.addAll(ReflectionUtils.getIds(registry).stream().collect(Collectors.toList()));
-		}
-		else if (ReflectionUtils.BUILTIN_BIOME_REGISTRY != null)
-		{
-			idSet.addAll(ReflectionUtils.getIds(ReflectionUtils.BUILTIN_BIOME_REGISTRY));
-		}
-		
-		if (idSet.isEmpty())
-		{
-			/* // TODO 1.19.3
-			if (biomeRegistryWrapper == null)
+		final List<Triple<String, String, String>> idData = data.keySet()
+			.stream().map(i ->
 			{
-				biomeRegistryWrapper = BuiltinRegistries.createWrapperLookup().getWrapperOrThrow(ReflectionUtils.BIOME_KEY);
-			}
-			
-			idSet.addAll(((RegistryWrapper<?>) biomeRegistryWrapper).streamKeys().map(RegistryKey::getValue).collect(Collectors.toList()));
-			*/
-		}
-		
-		data.keySet().stream().map(Identifier::new).forEach(idSet::add);
-		
-		final List<Triple<String, String, String>> idData = idSet.stream().map(i -> Triple.of(i.toString(), Util.createTranslationKey("biome", i), I18n.translate(Util.createTranslationKey("biome", i)))).collect(Collectors.toList());
-		
-		Collections.sort(idData, (l, r) -> l.getRight().compareTo(r.getRight()));
+				final String key = Util.createTranslationKey("biome", new Identifier(i));
+				return Triple.of(i, key, I18n.translate(key));
+			})
+			.sorted((l, r) -> l.getRight().compareTo(r.getRight()))
+			.collect(Collectors.toList());
 		
 		String idStr, translationKey;
 		for (final Triple<String, String, String> id : idData)
 		{
 			idStr = id.getLeft();
 			translationKey = id.getMiddle();
-			data.computeIfAbsent(idStr, FogToggles::new);
 			
 			biomeEntries.add(ENTRY_BUILDER
 				.startSubCategory(
@@ -296,7 +226,7 @@ public class AutoConfigUtils
 			{
 				for (final AbstractConfigListEntry<?> entry : entries)
 				{
-				//	entry.appendSearchTags(tags); // TODO 1.19.3
+				//	entry.appendSearchTags(tags); // TODO 1.19
 				}
 			}
 			catch (Throwable e)

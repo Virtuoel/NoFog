@@ -8,13 +8,13 @@ import virtuoel.no_fog.api.NoFogConfig;
 public class DummyNoFogConfig implements NoFogConfig
 {
 	public FogToggles globalToggles = new FogToggles();
-	public Map<String, FogToggles> biomeToggles = new LinkedHashMap<>();
-	public Map<String, FogToggles> dimensionToggles = new LinkedHashMap<>();
+	public Map<String, FogToggles> dimensionToggles = ConfigUtils.populateDimensionToggles(new LinkedHashMap<>());
+	public Map<String, FogToggles> biomeToggles = ConfigUtils.populateBiomeToggles(new LinkedHashMap<>());
 	
 	@Override
-	public Map<String, FogToggles> getBiomeToggles()
+	public FogToggles getGlobalToggles()
 	{
-		return biomeToggles;
+		return globalToggles;
 	}
 	
 	@Override
@@ -24,8 +24,8 @@ public class DummyNoFogConfig implements NoFogConfig
 	}
 	
 	@Override
-	public FogToggles getGlobalToggles()
+	public Map<String, FogToggles> getBiomeToggles()
 	{
-		return globalToggles;
+		return biomeToggles;
 	}
 }
