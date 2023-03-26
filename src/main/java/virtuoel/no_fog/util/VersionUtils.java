@@ -22,7 +22,8 @@ public class VersionUtils
 			{1, 16, 5},
 			{1, 17, 1},
 			{1, 18, 2},
-			{1, 19, 2},
+			{1, 19, 4},
+			{1, 20, 0},
 		};
 		
 		final String prefix = ".compat%s%s";
@@ -45,7 +46,7 @@ public class VersionUtils
 			VERSION_PREDICATES.add(n -> n.contains(predicateMinorZero) && (VersionUtils.MINOR != minor || VersionUtils.PATCH != 0));
 			VERSION_PREDICATES.add(n -> n.contains(predicateMinorZeroMinus) && (VersionUtils.MINOR > minor || (VersionUtils.MINOR == minor && VersionUtils.PATCH > 0)));
 			
-			final int maxPatch = range[1];
+			final int maxPatch = range[2];
 			
 			for (int i = 1; i <= maxPatch; i++)
 			{
