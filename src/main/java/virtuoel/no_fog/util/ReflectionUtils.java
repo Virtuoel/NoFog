@@ -3,6 +3,7 @@ package virtuoel.no_fog.util;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodHandles.Lookup;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Optional;
@@ -22,6 +23,8 @@ import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.RegistryWorldView;
 import net.minecraft.world.WorldView;
 import net.minecraft.world.biome.Biome;
@@ -168,12 +171,15 @@ public class ReflectionUtils
 	{
 		if (GET_BIOME != null)
 		{
+			final Vec3d pos = entity.getPos();
+			final BlockPos blockPos = new BlockPos(MathHelper.floor(pos.getX()), MathHelper.floor(pos.getY()), MathHelper.floor(pos.getZ()));
+			
 			if (VersionUtils.MINOR > 18 || (VersionUtils.MINOR == 18 && VersionUtils.PATCH >= 2))
 			{
-				return ((RegistryEntry<Biome>) GET_BIOME.invokeExact((WorldView) entity.world, new BlockPos(entity.getPos()))).getKey().map(RegistryKey::getValue).map(Identifier::toString).orElse(null);
+				return ((RegistryEntry<Biome>) GET_BIOME.invokeExact((WorldView) entity.world, blockPos)).getKey().map(RegistryKey::getValue).map(Identifier::toString).orElse(null);
 			}
 			
-			final Biome biome = (Biome) GET_BIOME.invokeExact((WorldView) entity.world, new BlockPos(entity.getPos()));
+			final Biome biome = (Biome) GET_BIOME.invokeExact((WorldView) entity.world, blockPos);
 			return getId(getDynamicRegistry(entity.world, BIOME_KEY), biome).toString();
 		}
 		
@@ -286,6 +292,21 @@ public class ReflectionUtils
 				return m;
 			}
 			catch (SecurityException | NoSuchMethodException e)
+			{
+				return null;
+			}
+		});
+	}
+	
+	public static <T> Optional<Constructor<T>> getConstructor(final Optional<Class<T>> clazz, final Class<?>... params)
+	{
+		return clazz.map(c ->
+		{
+			try
+			{
+				return c.getConstructor(params);
+			}
+			catch (NoSuchMethodException | SecurityException e)
 			{
 				return null;
 			}

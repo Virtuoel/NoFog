@@ -1,6 +1,8 @@
 package virtuoel.no_fog.util;
 
-import java.util.function.BiFunction;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.Optional;
 import java.util.function.Function;
 
 import net.minecraft.text.LiteralTextContent;
@@ -19,7 +21,7 @@ public class I18nUtils
 	}
 	
 	private static final Function<String, Object> LITERAL = LiteralTextContent::new;
-	private static final BiFunction<String, Object[], Object> TRANSLATABLE = TranslatableTextContent::new;
+	private static final Constructor<TranslatableTextContent> TRANSLATABLE = ReflectionUtils.getConstructor(Optional.of(TranslatableTextContent.class), String.class, Object[].class).orElse(null);
 	
 	public static Text translate(final String unlocalized, final String defaultLocalized, final Object... args)
 	{
@@ -27,10 +29,22 @@ public class I18nUtils
 		{
 			if (VersionUtils.MINOR < 19)
 			{
-				return (Text) TRANSLATABLE.apply(unlocalized, args);
+				try
+				{
+					return (Text) TRANSLATABLE.newInstance(unlocalized, args);
+				}
+				catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e)
+				{
+					
+				}
 			}
 			
 			return Text.translatable(unlocalized, args);
+		}
+		
+		if (VersionUtils.MINOR < 19)
+		{
+			return (Text) LITERAL.apply(String.format(defaultLocalized, args));
 		}
 		
 		return literal(defaultLocalized, args);
