@@ -17,6 +17,8 @@ import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.RegistryWorldView;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.dimension.DimensionType;
@@ -76,7 +78,8 @@ public class ReflectionUtils
 	
 	public static String getBiomeId(Entity entity)
 	{
-		final Biome biome = entity.world.getBiome(new BlockPos(entity.getPos())).value();
+		final Vec3d pos = entity.getPos();
+		final Biome biome = entity.world.getBiome(new BlockPos(MathHelper.floor(pos.getX()), MathHelper.floor(pos.getY()), MathHelper.floor(pos.getZ()))).value();
 		return getId(getDynamicRegistry(entity.world, BIOME_KEY), biome).toString();
 	}
 	
