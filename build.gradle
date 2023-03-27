@@ -362,6 +362,7 @@ githubRelease {
 
 tasks.named("githubRelease") {
 	dependsOn remapJar
+	dependsOn sourcesJar
 	dependsOn remapSourcesJar
 }
 
