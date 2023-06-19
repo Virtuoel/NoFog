@@ -57,7 +57,7 @@ public class NoFogClient implements ClientModInitializer
 	
 	public static boolean isToggleEnabled(FogToggleType type, Entity entity)
 	{
-		final String dimension = entity.world.getRegistryKey().getValue().toString();
+		final String dimension = entity.getEntityWorld().getRegistryKey().getValue().toString();
 		
 		final NoFogConfig config = NoFogClient.CONFIG.get();
 		final FogToggles globalToggles = config.getGlobalToggles();

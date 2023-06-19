@@ -26,6 +26,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.RegistryWorldView;
+import net.minecraft.world.World;
 import net.minecraft.world.WorldView;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.dimension.DimensionType;
@@ -171,16 +172,17 @@ public class ReflectionUtils
 	{
 		if (GET_BIOME != null)
 		{
+			final World world = entity.getEntityWorld();
 			final Vec3d pos = entity.getPos();
 			final BlockPos blockPos = new BlockPos(MathHelper.floor(pos.getX()), MathHelper.floor(pos.getY()), MathHelper.floor(pos.getZ()));
 			
 			if (VersionUtils.MINOR > 18 || (VersionUtils.MINOR == 18 && VersionUtils.PATCH >= 2))
 			{
-				return ((RegistryEntry<Biome>) GET_BIOME.invokeExact((WorldView) entity.world, blockPos)).getKey().map(RegistryKey::getValue).map(Identifier::toString).orElse(null);
+				return ((RegistryEntry<Biome>) GET_BIOME.invokeExact((WorldView) world, blockPos)).getKey().map(RegistryKey::getValue).map(Identifier::toString).orElse(null);
 			}
 			
-			final Biome biome = (Biome) GET_BIOME.invokeExact((WorldView) entity.world, blockPos);
-			return getId(getDynamicRegistry(entity.world, BIOME_KEY), biome).toString();
+			final Biome biome = (Biome) GET_BIOME.invokeExact((WorldView) world, blockPos);
+			return getId(getDynamicRegistry(world, BIOME_KEY), biome).toString();
 		}
 		
 		return null;
