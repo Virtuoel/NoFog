@@ -20,6 +20,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.RegistryWorldView;
+import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.dimension.DimensionType;
 import virtuoel.no_fog.NoFogClient;
@@ -78,9 +79,10 @@ public class ReflectionUtils
 	
 	public static String getBiomeId(Entity entity)
 	{
+		final World world = entity.getEntityWorld();
 		final Vec3d pos = entity.getPos();
-		final Biome biome = entity.world.getBiome(new BlockPos(MathHelper.floor(pos.getX()), MathHelper.floor(pos.getY()), MathHelper.floor(pos.getZ()))).value();
-		return getId(getDynamicRegistry(entity.world, BIOME_KEY), biome).toString();
+		final Biome biome = world.getBiome(new BlockPos(MathHelper.floor(pos.getX()), MathHelper.floor(pos.getY()), MathHelper.floor(pos.getZ()))).value();
+		return getId(getDynamicRegistry(world, BIOME_KEY), biome).toString();
 	}
 	
 	public static Set<Identifier> getIds(Registry<?> registry)
