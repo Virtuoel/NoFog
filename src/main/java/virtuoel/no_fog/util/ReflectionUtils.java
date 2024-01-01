@@ -34,6 +34,7 @@ import virtuoel.no_fog.NoFogClient;
 
 public class ReflectionUtils
 {
+	public static final Class<?> LITERAL_TEXT;
 	public static final MethodHandle FOG_DENSITY, FOG_START, FOG_END, GET_REGISTRY_MANAGER, GET_DYNAMIC_REGISTRY, GET_BIOME, GET_IDS, GET_ID;
 	public static final RegistryKey<Registry<Fluid>> FLUID_KEY;
 	public static final RegistryKey<Registry<Biome>> BIOME_KEY;
@@ -44,6 +45,7 @@ public class ReflectionUtils
 	{
 		final MappingResolver mappingResolver = FabricLoader.getInstance().getMappingResolver();
 		final Int2ObjectMap<MethodHandle> h = new Int2ObjectArrayMap<MethodHandle>();
+		final Int2ObjectMap<Class<?>> c = new Int2ObjectArrayMap<Class<?>>();
 		Object kF, kB, rB, kD = kB = rB = kF = null;
 		
 		final Lookup lookup = MethodHandles.lookup();
@@ -55,8 +57,15 @@ public class ReflectionUtils
 		try
 		{
 			final boolean is116 = VersionUtils.MINOR == 16;
+			final boolean is118Minus = VersionUtils.MINOR <= 18;
 			final boolean is1182Plus = VersionUtils.MINOR > 18 || (VersionUtils.MINOR == 18 && VersionUtils.PATCH >= 2);
 			final boolean is1192Minus = VersionUtils.MINOR < 19 || (VersionUtils.MINOR == 19 && VersionUtils.PATCH <= 2);
+			
+			if (is118Minus)
+			{
+				mapped = mappingResolver.mapClassName("intermediary", "net.minecraft.class_2585");
+				c.put(0, Class.forName(mapped));
+			}
 			
 			if (is116)
 			{
@@ -130,6 +139,7 @@ public class ReflectionUtils
 		GET_BIOME = h.get(5);
 		GET_IDS = h.get(6);
 		GET_ID = h.get(7);
+		LITERAL_TEXT = c.get(0);
 		FLUID_KEY = castRegistryKey(kF);
 		BIOME_KEY = castRegistryKey(kB);
 		DIMENSION_TYPE_KEY = castRegistryKey(kD);
