@@ -7,7 +7,7 @@ modId="no_fog"
 version="${file.jarVersion}"
 displayName="No Fog"
 displayURL="https://www.curseforge.com/minecraft/mc-mods/nofog/"
-logoFile="no_fog_icon.png"
+logoFile="assets/no_fog/icon.png"
 authors="Virtuoel"
 description='''
 Removes different types of fog.

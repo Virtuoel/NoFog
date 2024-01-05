@@ -21,7 +21,7 @@
 		"sources": "https://github.com/Virtuoel/NoFog"
 	},
 	"license": "MIT",
-	"icon": "no_fog_icon.png",
+	"icon": "assets/no_fog/icon.png",
 	"environment": "client",
 	"entrypoints":
 	{
