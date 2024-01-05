@@ -1,9 +1,9 @@
 {
 	"schemaVersion": 1,
 	"id": "no_fog",
-	"name": "No Fog (Forge Version)",
-	"version": "0.0.0+forge",
-	"description": "Forge version of No Fog, but you are playing on a Fabric/Quilt instance! Did you download the wrong mod .jar?",
+	"name": "No Fog (NeoForge Version)",
+	"version": "0.0.0+neoforge",
+	"description": "NeoForge version of No Fog, but you are playing on a Fabric/Quilt instance! Did you download the wrong mod .jar?",
 	"authors":
 	[
 		"Virtuoel"
