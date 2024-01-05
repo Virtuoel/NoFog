@@ -7,7 +7,7 @@ import org.apache.logging.log4j.Logger;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.util.Identifier;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.fml.common.Mod;
 import virtuoel.no_fog.api.NoFogConfig;
 import virtuoel.no_fog.util.AutoConfigUtils;
 import virtuoel.no_fog.util.DummyNoFogConfig;

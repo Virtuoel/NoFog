@@ -1,6 +1,6 @@
 package virtuoel.no_fog.util;
 
-import net.minecraftforge.fml.loading.FMLLoader;
+import net.neoforged.fml.loading.FMLLoader;
 
 public class ModLoaderUtils
 {

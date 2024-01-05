@@ -7,7 +7,7 @@ import java.util.function.Predicate;
 import org.apache.maven.artifact.versioning.ArtifactVersion;
 import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 
-import net.minecraftforge.versions.mcp.MCPVersion;
+import net.neoforged.neoforge.internal.versions.neoform.NeoFormVersion;
 
 public class VersionUtils
 {
@@ -23,7 +23,8 @@ public class VersionUtils
 			{1, 17, 1},
 			{1, 18, 2},
 			{1, 19, 4},
-			{1, 20, 0},
+			{1, 20, 5},
+			{1, 21, 0},
 		};
 		
 		final String prefix = ".compat%s%s";
@@ -79,7 +80,7 @@ public class VersionUtils
 		return true;
 	}
 	
-	public static final ArtifactVersion MINECRAFT_VERSION = new DefaultArtifactVersion(MCPVersion.getMCVersion());
+	public static final ArtifactVersion MINECRAFT_VERSION = new DefaultArtifactVersion(NeoFormVersion.getMCVersion());
 	public static final int MAJOR = MINECRAFT_VERSION.getMajorVersion();
 	public static final int MINOR = MINECRAFT_VERSION.getMinorVersion();
 	public static final int PATCH = MINECRAFT_VERSION.getIncrementalVersion();

@@ -1,5 +1,5 @@
 modLoader="javafml"
-loaderVersion="[28,)"
+loaderVersion="[1,)"
 license="MIT"
 issueTrackerURL="https://github.com/Virtuoel/NoFog/issues"
 [[mods]]
@@ -12,3 +12,5 @@ authors="Virtuoel"
 description='''
 Removes different types of fog.
 '''
+[[mixins]]
+config="no_fog.mixins.json"

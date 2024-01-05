@@ -25,8 +25,8 @@ import net.minecraft.client.resource.language.I18n;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
-import net.minecraftforge.client.ConfigScreenHandler;
-import net.minecraftforge.fml.ModLoadingContext;
+import net.neoforged.fml.ModLoadingContext;
+import net.neoforged.neoforge.client.ConfigScreenHandler;
 import virtuoel.no_fog.api.NoFogConfig;
 
 public class AutoConfigUtils
