@@ -4,7 +4,6 @@
 	"package": "virtuoel.no_fog.mixin",
 	"compatibilityLevel": "JAVA_8",
 	"plugin": "virtuoel.no_fog.mixin.NoFogMixinConfigPlugin",
-	"refmap": "NoFog-refmap.json",
 	"client":
 	[
 		"client.compat116.BackgroundRendererMixin",
