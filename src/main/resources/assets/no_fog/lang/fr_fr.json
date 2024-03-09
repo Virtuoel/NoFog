@@ -1,0 +1,17 @@
+{
+  "text.autoconfig.no_fog.title": "Configuration de NoFog",
+  "text.no_fog.config.category.global": "Paramètres globaux",
+  "text.no_fog.config.category.dimensions": "Paramètres de type de dimension",
+  "text.no_fog.config.category.biomes": "Paramètres de biome",
+  "text.no_fog.config.default.enabled": "Par défaut : activé",
+  "text.no_fog.config.default.disabled": "Par défaut : désactivé",
+  "text.no_fog.config.sky_fog": "Activer le brouillard du ciel",
+  "text.no_fog.config.terrain_fog": "Activer le brouillard du terrain",
+  "text.no_fog.config.thick_fog": "Activer un épais brouillard",
+  "text.no_fog.config.thick_fog.tooltip": "(par exemple, le brouillard des boss ou le brouillard du Nether)",
+  "text.no_fog.config.water_fog": "Activer le brouillard de l'eau",
+  "text.no_fog.config.lava_fog": "Activer le brouillard de la lave",
+  "text.no_fog.config.powder_snow_fog": "Activer le brouillard de la neige poudreuse",
+  "text.no_fog.config.blindness_fog": "Activer le brouillard de la cécité",
+  "text.no_fog.config.darkness_fog": "Activer le brouillard de l'obscurité"
+}
