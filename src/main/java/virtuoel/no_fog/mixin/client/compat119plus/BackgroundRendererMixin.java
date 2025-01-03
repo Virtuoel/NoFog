@@ -1,17 +1,15 @@
 package virtuoel.no_fog.mixin.client.compat119plus;
 
+import org.spongepowered.asm.mixin.Dynamic;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-
 import net.minecraft.block.enums.CameraSubmersionType;
 import net.minecraft.client.render.BackgroundRenderer;
 import net.minecraft.client.render.Camera;
-import net.minecraft.client.render.FogShape;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import virtuoel.no_fog.NoFogClient;
@@ -21,7 +19,8 @@ import virtuoel.no_fog.util.ReflectionUtils;
 @Mixin(value = BackgroundRenderer.class, priority = 910)
 public abstract class BackgroundRendererMixin
 {
-	@Inject(method = "applyFog", at = @At("RETURN"))
+	@Dynamic
+	@Inject(method = "applyFog", at = @At(value = "INVOKE", shift = At.Shift.BEFORE, target = "Lnet/minecraft/client/render/Fog;newV"))
 	private static void applyFogModifyDistance(Camera camera, BackgroundRenderer.FogType fogType, float viewDistance, boolean thickFog, float tickDelta, CallbackInfo info)
 	{
 		final CameraSubmersionType cameraSubmersionType = camera.getSubmersionType();
@@ -29,9 +28,8 @@ public abstract class BackgroundRendererMixin
 		
 		if (!NoFogClient.isToggleEnabled(getFogType(fogType, thickFog, cameraSubmersionType, entity), entity))
 		{
-			RenderSystem.setShaderFogStart(NoFogClient.FOG_START);
-			RenderSystem.setShaderFogEnd(NoFogClient.FOG_END);
-			RenderSystem.setShaderFogShape(FogShape.CYLINDER);
+			ReflectionUtils.setFogStart(NoFogClient.FOG_START);
+			ReflectionUtils.setFogEnd(NoFogClient.FOG_END);
 		}
 	}
 	

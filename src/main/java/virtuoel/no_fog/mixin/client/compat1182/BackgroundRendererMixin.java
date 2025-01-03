@@ -8,8 +8,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-
 import net.minecraft.block.enums.CameraSubmersionType;
 import net.minecraft.client.render.BackgroundRenderer;
 import net.minecraft.client.render.Camera;
@@ -32,12 +30,12 @@ public abstract class BackgroundRendererMixin
 		
 		if (modifiedStart != start)
 		{
-			RenderSystem.setShaderFogStart(modifiedStart);
+			ReflectionUtils.setFogStart(modifiedStart);
 		}
 		
 		if (modifiedEnd != end)
 		{
-			RenderSystem.setShaderFogEnd(modifiedEnd);
+			ReflectionUtils.setFogEnd(modifiedEnd);
 		}
 	}
 	

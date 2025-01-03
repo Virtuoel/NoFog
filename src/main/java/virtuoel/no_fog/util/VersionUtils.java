@@ -25,7 +25,7 @@ public class VersionUtils
 			{1, 18, 2},
 			{1, 19, 4},
 			{1, 20, 5},
-			{1, 21, 0},
+			{1, 21, 0}
 		};
 		
 		final String prefix = ".compat%s%s";
@@ -69,6 +69,12 @@ public class VersionUtils
 	{
 		if (mixinClassName.contains(".compat"))
 		{
+			// Please someone fix this. I just don't comprehend the system with
+			// the ranges
+			if (MINOR == 21 && PATCH == 4)
+			{
+				return mixinClassName.contains("compat1214plus");
+			}
 			for (final Predicate<String> predicate : VERSION_PREDICATES)
 			{
 				if (predicate.test(mixinClassName))
