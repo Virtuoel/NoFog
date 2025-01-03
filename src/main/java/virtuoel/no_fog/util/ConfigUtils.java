@@ -53,7 +53,7 @@ public class ConfigUtils
 				{
 					if (dimensionTypeRegistryWrapper == null)
 					{
-						dimensionTypeRegistryWrapper = BuiltinRegistries.createWrapperLookup().getWrapperOrThrow(ReflectionUtils.DIMENSION_TYPE_KEY);
+						dimensionTypeRegistryWrapper = BuiltinRegistries.createWrapperLookup().getOrThrow(ReflectionUtils.DIMENSION_TYPE_KEY);
 					}
 					
 					((RegistryWrapper<?>) dimensionTypeRegistryWrapper).streamKeys().map(RegistryKey::getValue).map(Identifier::toString).sorted().forEach(ids::add);
@@ -105,7 +105,7 @@ public class ConfigUtils
 				{
 					if (biomeRegistryWrapper == null)
 					{
-						biomeRegistryWrapper = BuiltinRegistries.createWrapperLookup().getWrapperOrThrow(ReflectionUtils.BIOME_KEY);
+						biomeRegistryWrapper = BuiltinRegistries.createWrapperLookup().getOrThrow(ReflectionUtils.BIOME_KEY);
 					}
 					
 					((RegistryWrapper<?>) biomeRegistryWrapper).streamKeys().map(RegistryKey::getValue).map(Identifier::toString).sorted().forEach(ids::add);
