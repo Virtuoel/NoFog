@@ -27,8 +27,8 @@ public abstract class BackgroundRendererMixin
 	private static void applyFogModifyDensity(Camera camera, BackgroundRenderer.FogType fogType, float viewDistance, boolean thickFog, CallbackInfo info, FluidState fluidState, Entity entity, float density)
 	{
 		if (
-			(TagCompatibility.isIn(fluidState, TagCompatibility.FluidTags.WATER) && !NoFogClient.isToggleEnabled(FogToggleType.WATER, entity)) ||
-			(TagCompatibility.isIn(fluidState, TagCompatibility.FluidTags.LAVA) && !NoFogClient.isToggleEnabled(FogToggleType.LAVA, entity))
+			(TagCompatibility.isIn(fluidState, TagCompatibility.WATER) && !NoFogClient.isToggleEnabled(FogToggleType.WATER, entity)) ||
+			(TagCompatibility.isIn(fluidState, TagCompatibility.LAVA) && !NoFogClient.isToggleEnabled(FogToggleType.LAVA, entity))
 		)
 		{
 			ReflectionUtils.setFogDensity(0);

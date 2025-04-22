@@ -25,7 +25,7 @@ public class VersionUtils
 			{1, 18, 2},
 			{1, 19, 4},
 			{1, 20, 5},
-			{1, 21, 0},
+			{1, 21, 5},
 		};
 		
 		final String prefix = ".compat%s%s";

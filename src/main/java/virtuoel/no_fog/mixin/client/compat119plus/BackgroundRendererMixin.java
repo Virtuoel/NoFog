@@ -1,5 +1,7 @@
 package virtuoel.no_fog.mixin.client.compat119plus;
 
+import net.minecraft.client.render.Fog;
+import org.joml.Vector4f;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -14,6 +16,7 @@ import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.FogShape;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import virtuoel.no_fog.NoFogClient;
 import virtuoel.no_fog.util.FogToggleType;
 import virtuoel.no_fog.util.ReflectionUtils;
@@ -22,16 +25,15 @@ import virtuoel.no_fog.util.ReflectionUtils;
 public abstract class BackgroundRendererMixin
 {
 	@Inject(method = "applyFog", at = @At("RETURN"))
-	private static void applyFogModifyDistance(Camera camera, BackgroundRenderer.FogType fogType, float viewDistance, boolean thickFog, float tickDelta, CallbackInfo info)
+	private static void applyFogModifyDistance(Camera camera, BackgroundRenderer.FogType fogType, Vector4f color, float viewDistance, boolean thickenFog, float tickProgress, CallbackInfoReturnable<Fog> cir)
 	{
 		final CameraSubmersionType cameraSubmersionType = camera.getSubmersionType();
 		final Entity entity = camera.getFocusedEntity();
 		
-		if (!NoFogClient.isToggleEnabled(getFogType(fogType, thickFog, cameraSubmersionType, entity), entity))
+		if (!NoFogClient.isToggleEnabled(getFogType(fogType, thickenFog, cameraSubmersionType, entity), entity))
 		{
-			RenderSystem.setShaderFogStart(NoFogClient.FOG_START);
-			RenderSystem.setShaderFogEnd(NoFogClient.FOG_END);
-			RenderSystem.setShaderFogShape(FogShape.CYLINDER);
+			Fog old = RenderSystem.getShaderFog();
+			RenderSystem.setShaderFog(new Fog(NoFogClient.FOG_START, NoFogClient.FOG_END, FogShape.CYLINDER, old.red(), old.green(), old.blue(), old.alpha()));
 		}
 	}
 	

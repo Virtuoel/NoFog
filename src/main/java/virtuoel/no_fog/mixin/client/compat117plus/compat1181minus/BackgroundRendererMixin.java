@@ -1,5 +1,6 @@
 package virtuoel.no_fog.mixin.client.compat117plus.compat1181minus;
 
+import net.minecraft.client.render.Fog;
 import org.spongepowered.asm.mixin.Dynamic;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -31,7 +32,8 @@ public abstract class BackgroundRendererMixin
 		
 		if (modified != end)
 		{
-			RenderSystem.setShaderFogEnd(modified);
+			Fog old = RenderSystem.getShaderFog();
+			RenderSystem.setShaderFog(new Fog(old.start(), modified, old.shape(), old.red(), old.green(), old.blue(), old.alpha()));
 		}
 	}
 	
@@ -43,7 +45,9 @@ public abstract class BackgroundRendererMixin
 		
 		if (modified != start)
 		{
-			RenderSystem.setShaderFogStart(modified);
+			Fog old = RenderSystem.getShaderFog();
+			RenderSystem.setShaderFog(new Fog(modified, old.end(), old.shape(), old.red(), old.green(), old.blue(), old.alpha()));
+
 		}
 	}
 	
@@ -55,7 +59,8 @@ public abstract class BackgroundRendererMixin
 		
 		if (modified != end)
 		{
-			RenderSystem.setShaderFogEnd(modified);
+			Fog old = RenderSystem.getShaderFog();
+			RenderSystem.setShaderFog(new Fog(old.start(), modified, old.shape(), old.red(), old.green(), old.blue(), old.alpha()));
 		}
 	}
 	

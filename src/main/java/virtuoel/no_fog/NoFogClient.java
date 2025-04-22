@@ -39,8 +39,6 @@ public class NoFogClient implements ClientModInitializer
 		{
 			AutoConfigUtils.initialize();
 		}
-		
-		TagCompatibility.FluidTags.WATER.getClass();
 	}
 	
 	public static final float FOG_START = -8.0F;
