@@ -1,5 +1,5 @@
 plugins {
-	id "fabric-loom" version "1.6.+"
+	id "net.fabricmc.fabric-loom" version "1.18.4"
 	id "eclipse"
 	id "maven-publish"
 	id "com.github.johnrengelman.shadow" version "8.1.1" apply false
@@ -52,15 +52,9 @@ group = project.maven_group
 base.archivesName = project.archives_base_name
 version = project.mod_version + "+" + (ENV.BUILD_NUMBER ? "build.${ENV.BUILD_NUMBER}-" : "") + (project.hasProperty("metadata_minecraft_versions") ? project.metadata_minecraft_versions : project.minecraft_version)
 
-def minecraftVersionNumber = VersionNumber.parse(minecraft_version)
-if(minecraftVersionNumber.getMajor() == 0 && project.hasProperty("metadata_minecraft_versions")) {
-	if(metadata_minecraft_versions.contains("-")) {
-		minecraftVersionNumber = VersionNumber.parse(metadata_minecraft_versions.split("-")[1])
-	}
-	else {
-		minecraftVersionNumber = VersionNumber.parse(metadata_minecraft_versions)
-	}
-}
+def minecraftVersionParts = minecraft_version.tokenize(".").collect { it.toInteger() }
+def minecraftMinor = minecraftVersionParts[1]
+def minecraftPatch = minecraftVersionParts.size() > 2 ? minecraftVersionParts[2] : 0
 
 if(project.hasProperty("neoforge_version") && !project.hasProperty("forge_version")) {
 	version += "-neoforge"
@@ -75,7 +69,7 @@ else if(project.hasProperty("forge_version")) {
 	}
 	
 	if(project.hasProperty("mixin_extras_version")) {
-		def minor = minecraftVersionNumber.getMinor()
+		def minor = minecraftMinor
 		if(minor < 18) {
 			apply plugin: "com.github.johnrengelman.shadow"
 			
@@ -103,12 +97,6 @@ loom {
 	if(access_widener_file.exists()) {
 		accessWidenerPath = access_widener_file
 	}
-	if(!project.hasProperty("neoforge_version") || project.hasProperty("forge_version")) {
-		mixin.defaultRefmapName = "${archives_base_name}-refmap.json"
-	}
-	if(!project.hasProperty("neoforge_version") && !project.hasProperty("forge_version")) {
-		mixin.useLegacyMixinAp = false
-	}
 }
 
 if(project.hasProperty("loader_version")) {
@@ -121,23 +109,8 @@ if(project.hasProperty("fabric_version")) {
 
 dependencies {
 	minecraft "com.mojang:minecraft:${minecraft_version}"
-	
-	def minor = minecraftVersionNumber.getMinor()
-	def patch = minecraftVersionNumber.getMicro()
-	
-	if(project.yarn_mappings.contains(", ") || (project.hasProperty("neoforge_version") && (minor > 20 || (minor == 20 && patch >= 5)))) {
-		mappings loom.layered {
-			project.yarn_mappings.split(", ").each { String mapping ->
-				mappings "net.fabricmc:yarn:${mapping}:v2"
-			}
-			if(project.hasProperty("neoforge_version") && (minor > 20 || (minor == 20 && patch >= 5))) {
-				mappings "dev.architectury:yarn-mappings-patch-neoforge:1.20.5+build.3"
-			}
-		}
-	}
-	else {
-		mappings "net.fabricmc:yarn:${yarn_mappings}:v2"
-	}
+	def minor = minecraftMinor
+	def patch = minecraftPatch
 	
 	if(project.hasProperty("neoforge_version") && !project.hasProperty("forge_version")) {
 		neoForge "net.neoforged:neoforge:${neoforge_version}"
@@ -170,7 +143,7 @@ dependencies {
 		}
 	}
 	else if(project.hasProperty("fabric_loader_version")) {
-		modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
+		implementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
 		
 		def excludeLoader = { exclude group: "net.fabricmc", module: "fabric-loader" }
 		def excludeApi = { exclude group: "net.fabricmc.fabric-api" }
@@ -181,8 +154,8 @@ dependencies {
 		
 		if(project.hasProperty("fabric_api_version")) {
 			if(!project.hasProperty("fabric_modules") && !project.hasProperty("api_fabric_modules") && !project.hasProperty("impl_fabric_modules")) {
-				modCompileOnly "net.fabricmc.fabric-api:fabric-api:${fabric_api_version}", excludeLoader
-				modLocalRuntime "net.fabricmc.fabric-api:fabric-api:${fabric_api_version}", excludeLoader
+				compileOnly "net.fabricmc.fabric-api:fabric-api:${fabric_api_version}", excludeLoader
+				runtimeOnly "net.fabricmc.fabric-api:fabric-api:${fabric_api_version}", excludeLoader
 			}
 			
 			if(project.hasProperty("fabric_modules")) {
@@ -212,14 +185,21 @@ dependencies {
 		}
 		
 		if(project.hasProperty("modmenu_version")) {
-			modCompileOnly "com.terraformersmc:modmenu:${modmenu_version}", excludeFabric
-			modLocalRuntime "com.terraformersmc:modmenu:${modmenu_version}", excludeFabric
+			compileOnly "com.terraformersmc:modmenu:${modmenu_version}", excludeFabric
 		}
 		
 		if(project.hasProperty("cloth_config_version")) {
-			modApi "me.shedaniel.cloth:cloth-config-fabric:${cloth_config_version}", excludeFabric
+			implementation "me.shedaniel.cloth:cloth-config-fabric:${cloth_config_version}", excludeFabric
 		}
 	}
+}
+
+configurations.named("compileClasspath") {
+	// Compile against the 26.3 libraries while keeping the generated classes Java 8 compatible.
+	attributes.attribute(
+		org.gradle.api.attributes.java.TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE,
+		25
+	)
 }
 
 processResources {
@@ -243,12 +223,12 @@ eclipse {
 	}
 	if(!proj.hasProperty("neoforge_version") && !proj.hasProperty("forge_version")) {
 		jdt {
-			javaRuntimeName = "JavaSE-21"
+			javaRuntimeName = "JavaSE-25"
 		}
 	}
 	else {
-		def minor = minecraftVersionNumber.getMinor()
-		def patch = minecraftVersionNumber.getMicro()
+		def minor = minecraftMinor
+		def patch = minecraftPatch
 		jdt {
 			javaRuntimeName = "JavaSE-${minor > 20 || (minor == 20 && patch >= 5) ? 21 : minor >= 18 ? 17 : minor >= 17 ? 16 : 1.8}"
 		}
@@ -257,15 +237,15 @@ eclipse {
 
 tasks.withType(JavaCompile) {
 	options.encoding = "UTF-8"
-	options.compilerArgs += [ "-Xmaxwarns", "0" ]
+	options.compilerArgs += [ "-Xmaxwarns", "0", "-Xlint:-options" ]
 	
 	javaCompiler = javaToolchains.compilerFor {
 		if(!proj.hasProperty("neoforge_version") && !proj.hasProperty("forge_version")) {
-			languageVersion = JavaLanguageVersion.of(21)
+			languageVersion = JavaLanguageVersion.of(25)
 		}
 		else {
-			def minor = minecraftVersionNumber.getMinor()
-			def patch = minecraftVersionNumber.getMicro()
+			def minor = minecraftMinor
+			def patch = minecraftPatch
 			languageVersion = JavaLanguageVersion.of(minor > 20 || (minor == 20 && patch >= 5) ? 21 : minor >= 18 ? 17 : minor >= 17 ? 16 : 8)
 		}
 		vendor = JvmVendorSpec.ADOPTIUM
@@ -285,8 +265,8 @@ java {
 		targetCompatibility = JavaVersion.VERSION_1_8
 	}
 	else {
-		def minor = minecraftVersionNumber.getMinor()
-		def patch = minecraftVersionNumber.getMicro()
+		def minor = minecraftMinor
+		def patch = minecraftPatch
 		if(minor > 20 || (minor == 20 && patch >= 5)) {
 			sourceCompatibility = JavaVersion.VERSION_21
 			targetCompatibility = JavaVersion.VERSION_21
@@ -314,19 +294,30 @@ jar {
 	from "LICENSE"
 }
 
+tasks.named("jar") {
+	dependsOn(":legacy:remapJar")
+	from(provider {
+		project(":legacy").tasks.named("remapJar").get().archiveFile.get().asFile
+	}) {
+		into "META-INF/jars"
+		rename { "no_fog-legacy.jar" }
+	}
+}
+
 tasks.named("sourcesJar") {
 	exclude "*.mod.json"
 	exclude "META-INF/*mods.toml"
+	from(project(":legacy").file("src/main/java"))
 }
 
 tasks.named({ it in [ "runClient", "runServer" ] }).configureEach {
 	javaLauncher = javaToolchains.launcherFor {
 		if(!proj.hasProperty("neoforge_version") && !proj.hasProperty("forge_version")) {
-			languageVersion = JavaLanguageVersion.of(21)
+			languageVersion = JavaLanguageVersion.of(25)
 		}
 		else {
-			def minor = minecraftVersionNumber.getMinor()
-			def patch = minecraftVersionNumber.getMicro()
+			def minor = minecraftMinor
+			def patch = minecraftPatch
 			languageVersion = JavaLanguageVersion.of(minor > 20 || (minor == 20 && patch >= 5) ? 21 : minor >= 18 ? 17 : minor >= 17 ? 16 : 8)
 		}
 		vendor = JvmVendorSpec.ADOPTIUM
@@ -391,8 +382,6 @@ String generateHtmlChangelog() {
 		changelog_text += "<p>Fabric Loader <code>${fabric_loader_version}</code></p>\n"
 	}
 	
-	changelog_text += "<p>Yarn mappings <code>${yarn_mappings}</code></p>\n"
-	
 	if(project.hasProperty("changelog_fabric_api_version")) {
 		changelog_text += "<p><a href=\"https://www.curseforge.com/minecraft/mc-mods/fabric-api/files/all\" rel=\"nofollow\">Fabric API <code>${changelog_fabric_api_version}</code></a></p>\n"
 	}
@@ -431,8 +420,6 @@ String generateMarkdownChangelog() {
 	if(project.hasProperty("fabric_loader_version")) {
 		changelog_text += "Fabric Loader " + '`' + "${fabric_loader_version}" + '`' + "  \n"
 	}
-	
-	changelog_text += "Yarn mappings " + '`' + "${yarn_mappings}" + '`' + "  \n"
 	
 	if(project.hasProperty("changelog_fabric_api_version")) {
 		changelog_text += "[Fabric API " + '`' + "${changelog_fabric_api_version}" + '`' + "](https://modrinth.com/mod/fabric-api/versions)  \n"
@@ -475,9 +462,8 @@ githubRelease {
 }
 
 tasks.named("githubRelease") {
-	dependsOn remapJar
+	dependsOn jar
 	dependsOn sourcesJar
-	dependsOn remapSourcesJar
 }
 
 curseforge {
@@ -516,7 +502,7 @@ curseforge {
 				display_name_prefix += "[NeoForge] "
 			}
 			
-			mainArtifact(remapJar) {
+			mainArtifact(jar) {
 				it.displayName = "${display_name_prefix}${archives_base_name} ${project.mod_version}"
 				
 				if(project.hasProperty("curseforge_required_dep_slugs") || project.hasProperty("curseforge_embedded_lib_slugs") || project.hasProperty("curseforge_optional_dep_slugs") || project.hasProperty("curseforge_compatible_tool_slugs") || project.hasProperty("curseforge_incompatible_slugs")) {
@@ -570,8 +556,8 @@ curseforge {
 if(project.hasProperty("curseforge_id")) {
 	afterEvaluate {
 		tasks.named("curseforge${project.curseforge_id}") {
-			dependsOn remapJar
-			dependsOn remapSourcesJar
+			dependsOn jar
+			dependsOn sourcesJar
 		}
 	}
 }
@@ -624,11 +610,11 @@ modrinth {
 		
 		changelog = generateMarkdownChangelog()
 		
-		uploadFile = remapJar
+		uploadFile = jar
 	}
 }
 
 tasks.named("modrinth") {
-	dependsOn remapJar
-	dependsOn remapSourcesJar
+	dependsOn jar
+	dependsOn sourcesJar
 }

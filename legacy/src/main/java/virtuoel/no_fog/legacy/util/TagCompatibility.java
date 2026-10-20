@@ -1,4 +1,4 @@
-package virtuoel.no_fog.util;
+package virtuoel.no_fog.legacy.util;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

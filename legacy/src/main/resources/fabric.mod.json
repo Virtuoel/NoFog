@@ -1,0 +1,59 @@
+{
+	"schemaVersion": 1,
+	"id": "no_fog_legacy",
+	"name": "No Fog (legacy compatibility)",
+	"version": "${version}",
+	"description": "Removes different types of fog.",
+	"authors":
+	[
+		"Virtuoel"
+	],
+	"contributors":
+	[
+		"Calvineries",
+		"Emmaffle",
+		"FlashyReese",
+		"GodGun968",
+		"MCImaginarium",
+		"Tommeh1"
+	],
+	"contact":
+	{
+		"homepage": "https://www.curseforge.com/minecraft/mc-mods/nofog",
+		"issues": "https://github.com/Virtuoel/NoFog/issues",
+		"sources": "https://github.com/Virtuoel/NoFog"
+	},
+	"license": "MIT",
+	"icon": "assets/no_fog/icon.png",
+	"environment": "client",
+	"depends":
+	{
+		"fabricloader": ">=0.15.11"
+	},
+	"entrypoints":
+	{
+		"client":
+		[
+			"virtuoel.no_fog.legacy.LegacyBootstrap"
+		],
+		"modmenu":
+		[
+			"virtuoel.no_fog.legacy.util.ModMenuCompatibility"
+		]
+	},
+	"mixins":
+	[
+		"no_fog.mixins.json"
+	],
+	"custom":
+	{
+		"sodium-extra:options":
+		{
+			"mixin.fog": false
+		},
+		"sodium extra:options":
+		{
+			"mixin.fog": false
+		}
+	}
+}

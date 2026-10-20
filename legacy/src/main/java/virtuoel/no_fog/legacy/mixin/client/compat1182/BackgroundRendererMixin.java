@@ -1,4 +1,4 @@
-package virtuoel.no_fog.mixin.client.compat1182;
+package virtuoel.no_fog.legacy.mixin.client.compat1182;
 
 import org.spongepowered.asm.mixin.Dynamic;
 import org.spongepowered.asm.mixin.Mixin;
@@ -16,15 +16,15 @@ import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.FogShape;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
-import virtuoel.no_fog.NoFogClient;
-import virtuoel.no_fog.util.FogToggleType;
-import virtuoel.no_fog.util.ReflectionUtils;
+import virtuoel.no_fog.legacy.NoFogClient;
+import virtuoel.no_fog.legacy.util.FogToggleType;
+import virtuoel.no_fog.legacy.util.ReflectionUtils;
 
 @Mixin(value = BackgroundRenderer.class, priority = 910)
 public abstract class BackgroundRendererMixin
 {
 	@Dynamic
-	@Inject(method = "method_3211", locals = LocalCapture.CAPTURE_FAILHARD, at = @At("RETURN"))
+	@Inject(method = "method_3211", remap = false, locals = LocalCapture.CAPTURE_FAILHARD, at = @At("RETURN"))
 	private static void applyFogModifyDistance(Camera camera, BackgroundRenderer.FogType fogType, float viewDistance, boolean thickFog, CallbackInfo info, CameraSubmersionType cameraSubmersionType, Entity entity, FogShape fogShape, float start, float end)
 	{
 		final float modifiedStart = getFogDistance(fogType, viewDistance, thickFog, cameraSubmersionType, entity, start, true);

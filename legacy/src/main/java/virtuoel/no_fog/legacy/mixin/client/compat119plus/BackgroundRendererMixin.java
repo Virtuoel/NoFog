@@ -1,4 +1,4 @@
-package virtuoel.no_fog.mixin.client.compat119plus;
+package virtuoel.no_fog.legacy.mixin.client.compat119plus;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -14,9 +14,9 @@ import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.FogShape;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
-import virtuoel.no_fog.NoFogClient;
-import virtuoel.no_fog.util.FogToggleType;
-import virtuoel.no_fog.util.ReflectionUtils;
+import virtuoel.no_fog.legacy.NoFogClient;
+import virtuoel.no_fog.legacy.util.FogToggleType;
+import virtuoel.no_fog.legacy.util.ReflectionUtils;
 
 @Mixin(value = BackgroundRenderer.class, priority = 910)
 public abstract class BackgroundRendererMixin

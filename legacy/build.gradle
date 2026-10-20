@@ -1,0 +1,65 @@
+plugins {
+	id "fabric-loom"
+}
+
+group = "virtuoel"
+version = "1.4.0+legacy"
+base.archivesName = "NoFog-legacy"
+
+repositories {
+	maven {
+		name = "Fabric"
+		url = "https://maven.fabricmc.net/"
+	}
+	maven {
+		name = "Cloth Config"
+		url = "https://maven.shedaniel.me"
+	}
+	maven {
+		name = "TerraformersMC"
+		url = "https://maven.terraformersmc.com/"
+	}
+}
+
+dependencies {
+	minecraft "com.mojang:minecraft:1.21"
+	mappings "net.fabricmc:yarn:1.21+build.1:v2"
+	modImplementation "net.fabricmc:fabric-loader:0.15.11"
+	modImplementation "net.fabricmc.fabric-api:fabric-api:0.100.1+1.21"
+	modCompileOnly "com.terraformersmc:modmenu:11.0.0-beta.1"
+	modImplementation "me.shedaniel.cloth:cloth-config-fabric:15.0.127"
+}
+
+configurations.named("compileClasspath") {
+	attributes.attribute(
+		org.gradle.api.attributes.java.TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE,
+		25
+	)
+}
+
+java {
+	sourceCompatibility = JavaVersion.VERSION_1_8
+	targetCompatibility = JavaVersion.VERSION_1_8
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(25)
+	}
+}
+
+tasks.withType(JavaCompile).configureEach {
+	options.encoding = "UTF-8"
+	options.compilerArgs += [ "-Xlint:-options" ]
+}
+
+processResources {
+	inputs.property "version", project.version
+	filesMatching("fabric.mod.json") {
+		expand "version": project.version
+	}
+	from("../src/main/resources/assets") {
+		into "assets"
+	}
+}
+
+jar {
+	from "../LICENSE"
+}

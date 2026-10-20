@@ -1,4 +1,4 @@
-package virtuoel.no_fog.util;
+package virtuoel.no_fog.legacy.util;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -67,6 +67,11 @@ public class VersionUtils
 	
 	public static boolean shouldApplyCompatibilityMixin(String mixinClassName)
 	{
+		if (MAJOR != 1 || MINOR < 16 || MINOR > 21 || (MINOR == 16 && PATCH < 5))
+		{
+			return false;
+		}
+
 		if (mixinClassName.contains(".compat"))
 		{
 			for (final Predicate<String> predicate : VERSION_PREDICATES)

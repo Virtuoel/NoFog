@@ -1,0 +1,18 @@
+{
+	"required": true,
+	"minVersion": "0.8",
+	"package": "virtuoel.no_fog.legacy.mixin",
+	"compatibilityLevel": "JAVA_8",
+	"plugin": "virtuoel.no_fog.legacy.mixin.NoFogMixinConfigPlugin",
+	"client":
+	[
+		"client.compat116.BackgroundRendererMixin",
+		"client.compat117plus.compat1181minus.BackgroundRendererMixin",
+		"client.compat1182.BackgroundRendererMixin",
+		"client.compat119plus.BackgroundRendererMixin"
+	],
+	"injectors":
+	{
+		"defaultRequire": 1
+	}
+}

@@ -15,15 +15,15 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Triple;
 
 import me.shedaniel.autoconfig.AutoConfig;
+import me.shedaniel.autoconfig.AutoConfigClient;
 import me.shedaniel.autoconfig.gui.registry.GuiRegistry;
 import me.shedaniel.autoconfig.gui.registry.api.GuiRegistryAccess;
 import me.shedaniel.autoconfig.serializer.GsonConfigSerializer;
 import me.shedaniel.clothconfig2.api.AbstractConfigListEntry;
 import me.shedaniel.clothconfig2.api.ConfigEntryBuilder;
 import me.shedaniel.clothconfig2.gui.entries.EnumListEntry;
-import net.minecraft.client.resource.language.I18n;
-import net.minecraft.text.Text;
-import net.minecraft.util.Util;
+import net.minecraft.client.resources.language.I18n;
+import net.minecraft.network.chat.Component;
 import virtuoel.no_fog.api.NoFogConfig;
 
 public class AutoConfigUtils
@@ -31,7 +31,7 @@ public class AutoConfigUtils
 	public static void initialize()
 	{
 		AutoConfig.register(NoFogConfigImpl.class, GsonConfigSerializer::new);
-		GuiRegistry registry = AutoConfig.getGuiRegistry(NoFogConfigImpl.class);
+		GuiRegistry registry = AutoConfigClient.getGuiRegistry(NoFogConfigImpl.class);
 		registry.registerPredicateProvider(AutoConfigUtils::globalToggleEntry, f -> f.getName().equals("globalToggles"));
 		registry.registerPredicateProvider(AutoConfigUtils::dimensionToggleMapEntries, f -> f.getName().equals("dimensionToggles"));
 		registry.registerPredicateProvider(AutoConfigUtils::biomeToggleMapEntries, f -> f.getName().equals("biomeToggles"));
@@ -80,7 +80,7 @@ public class AutoConfigUtils
 		
 		entries.add(ENTRY_BUILDER
 			.startSubCategory(
-				I18nUtils.translate("text.no_fog.config.category.dimensions", "Dimension Type settings"),
+				I18nUtils.translate("text.no_fog.config.category.dimensions", "Dimension settings"),
 				dimensionEntries
 			).build()
 		);
@@ -101,8 +101,8 @@ public class AutoConfigUtils
 		final List<Triple<String, String, String>> idData = data.keySet()
 			.stream().map(i ->
 			{
-				final String key = Util.createTranslationKey("biome", ReflectionUtils.constructIdentifier(i));
-				return Triple.of(i, key, I18n.translate(key));
+				final String key = "biome." + i;
+				return Triple.of(i, key, I18n.get(key));
 			})
 			.sorted((l, r) -> l.getRight().compareTo(r.getRight()))
 			.collect(Collectors.toList());
@@ -185,15 +185,12 @@ public class AutoConfigUtils
 			I18nUtils.translate(disabledKey, disabledDefault)
 		));
 		
-		if (VersionUtils.MINOR >= 17)
-		{
-			entries.add(triStateEntry(
-				"text.no_fog.config.powder_snow_fog",
-				data.powderSnowFog,
-				newValue -> data.powderSnowFog = newValue,
-				I18nUtils.translate(disabledKey, disabledDefault)
-			));
-		}
+		entries.add(triStateEntry(
+			"text.no_fog.config.powder_snow_fog",
+			data.powderSnowFog,
+			newValue -> data.powderSnowFog = newValue,
+			I18nUtils.translate(disabledKey, disabledDefault)
+		));
 		
 		entries.add(triStateEntry(
 			"text.no_fog.config.blindness_fog",
@@ -202,15 +199,12 @@ public class AutoConfigUtils
 			I18nUtils.translate(enabledKey, enabledDefault)
 		));
 		
-		if (VersionUtils.MINOR >= 19)
-		{
-			entries.add(triStateEntry(
-				"text.no_fog.config.darkness_fog",
-				data.darknessFog,
-				newValue -> data.darknessFog = newValue,
-				I18nUtils.translate(enabledKey, enabledDefault)
-			));
-		}
+		entries.add(triStateEntry(
+			"text.no_fog.config.darkness_fog",
+			data.darknessFog,
+			newValue -> data.darknessFog = newValue,
+			I18nUtils.translate(enabledKey, enabledDefault)
+		));
 		
 		if (!tagsFailed && tags != null && !tags.isEmpty())
 		{
@@ -231,7 +225,7 @@ public class AutoConfigUtils
 		return entries;
 	}
 	
-	private static EnumListEntry<TriState> triStateEntry(String key, TriState value, Consumer<TriState> saveConsumer, Text... tooltip)
+	private static EnumListEntry<TriState> triStateEntry(String key, TriState value, Consumer<TriState> saveConsumer, Component... tooltip)
 	{
 		return ENTRY_BUILDER.startEnumSelector(I18nUtils.translate(key, key), TriState.class, value != null ? value : TriState.DEFAULT)
 			.setDefaultValue(TriState.DEFAULT)
